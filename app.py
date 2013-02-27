@@ -5,7 +5,23 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('home.html', 
+    	homeActive = 'current_page_item')
+
+@app.route('/nearby')
+def nearby():
+    return render_template('nearby.html', 
+    	nearbyActive = 'current_page_item')
+
+@app.route('/walking-tour')
+def walkingTour():
+    return render_template('walking-tour.html',
+    	walkingActive = 'current_page_item')
+
+@app.route('/photo-tour')
+def photoTour():
+    return render_template('photo-tour.html', 
+    	photoActive = 'current_page_item')
 
 if __name__ == '__main__':
     # Bind to PORT if defined, otherwise default to 5000.
