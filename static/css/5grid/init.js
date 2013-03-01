@@ -1,7 +1,44 @@
 /*****************************************************************/
-/* 5grid 0.3.2 by n33.co | MIT+GPLv2 license licensed            */
+/* 5grid 0.4 by n33.co | MIT+GPLv2 license licensed              */
 /* init.js: Init script                                          */
 /*****************************************************************/
+
+/*********************/
+/* Settings          */
+/*********************/
+
+	var _5grid_settings = {
+		breakpoint_1000px:				1200,
+		breakpoint_mobile:				480,
+		prefix:							'style',
+		use:							'mobile,desktop',
+		viewport_is1000px:				1040,
+		viewport_is1200px:				1280,
+		////////////////////////////////////////////////////////
+		mobileUI:						0,
+		mobileUI_hideAddressBar:		0,
+		mobileUI_openerText:			'=',
+		mobileUI_openerWidth:			60,
+		mobileUI_slideSpeed:			200,
+		mobileUI_theme:					'modern',
+		mobileUI_themeNavColor:			'#1f1f1f',
+		mobileUI_themeTitleBarColor:	'#444444',
+		mobileUI_titleBarFixed:			1,
+		mobileUI_titleBarHeight:		44,
+		mobileUI_titleBarOverlaid:		0,
+		////////////////////////////////////////////////////////
+		mobileUI_navInnerPad:			0,
+		mobileUI_force:					0,
+		mobileUI_tapDelay:				200,
+		debug_noExtLoad:				0
+	};
+
+/*********************/
+/* Helper plugins    */
+/*********************/
+
+	/* jQuery resize event - v1.1 - 3/14/2010 http://benalman.com/projects/jquery-resize-plugin/ | Copyright (c) 2010 "Cowboy" Ben Alman | Dual licensed under the MIT and GPL licenses. | http://benalman.com/about/license/ */
+	(function(jQuery,h,c){var a=jQuery([]),e=jQuery.resize=jQuery.extend(jQuery.resize,{}),i,k="setTimeout",j="resize",d=j+"-special-event",b="delay",f="throttleWindow";e[b]=250;e[f]=true;jQuery.event.special[j]={setup:function(){if(!e[f]&&this[k]){return false}var l=jQuery(this);a=a.add(l);jQuery.data(this,d,{w:l.width(),h:l.height()});if(a.length===1){g()}},teardown:function(){if(!e[f]&&this[k]){return false}var l=jQuery(this);a=a.not(l);l.removeData(d);if(!a.length){clearTimeout(i)}},add:function(l){if(!e[f]&&this[k]){return false}var n;function m(s,o,p){var q=jQuery(this),r=jQuery.data(this,d);r.w=o!==c?o:q.width();r.h=p!==c?p:q.height();n.apply(this,arguments)}if(jQuery.isFunction(l)){n=l;return m}else{n=l.handler;l.handler=m}}};function g(){i=h[k](function(){a.each(function(){var n=jQuery(this),m=n.width(),l=n.height(),o=jQuery.data(this,d);if(m!==o.w||l!==o.h){n.trigger(j,[o.w=m,o.h=l])}});g()},e[b])}})(jQuery,this);
 
 /*********************/
 /* Object Setup      */
@@ -10,6 +47,7 @@
 	var _5gridC = function()
 	{
 		this.events = new Array();
+		this.readyWait = false;
 
 		this.isReady = false;
 		this.isMobile = false;
@@ -36,10 +74,17 @@
 			(this.events[name][i])();
 	}
 
-	_5gridC.prototype.ready = function(f) { this.bind('ready', f); }
-	_5gridC.prototype.orientationChange = function(f) { this.bind('orientationChange', f); }
-	_5gridC.prototype.mobileUINavOpen = function(f) { this.bind('mobileUINavOpen', f); }
-	_5gridC.prototype.mobileUINavClose = function(f) { this.bind('mobileUINavClose', f); }
+	_5gridC.prototype.ready = function(f, wait) {
+		if (wait)
+			this.readyWait = true;
+
+		this.bind('ready', f);
+	}
+	
+	// Custom events
+		_5gridC.prototype.orientationChange = function(f) { this.bind('orientationChange', f); }
+		_5gridC.prototype.mobileUINavOpen = function(f) { this.bind('mobileUINavOpen', f); }
+		_5gridC.prototype.mobileUINavClose = function(f) { this.bind('mobileUINavClose', f); }
 
 	_5gridC.prototype.readyCheck = function()
 	{
@@ -63,123 +108,178 @@
 /*********************/
 
 	// Vars
-		var	_baseURL, _opts,
-			_fluid, _1000px, _1200px, _mobile, _desktop, _mobileOnly,
-			_window = jQuery(window), _head = jQuery('head'), _document = jQuery(document),
-			_headQueue = new Array(), _isLocked = false, _isTouch = !!('ontouchstart' in window), _eventType = (_isTouch ? 'touchend' : 'click'),
-			v, w, x, y;
+		var	_settings	= _5grid_settings,
+			_window		= jQuery(window),
+			_head		= jQuery('head'),
+			_document	= jQuery(document);
+		var	baseURL,
+			doFluid, do1000px, do1200px, doMobile, doDesktop, doMobileOnly,
+			isLocked = false,
+			isTapLocked = false, tapId,
+			isTouch = !!('ontouchstart' in window),
+			headQueue = new Array();
+		var v, w, wk, wv, x, y;
 
+	// Tap handling
+		jQuery.fn.tap_5grid = function(f, suffix, noMove) {
+			var target = jQuery(this);
+
+			if (isTouch)
+			{
+				target
+					.bind('touchstart' + (suffix ? '.' + suffix : ''), function() {
+						if (!isTapLocked)
+						{
+							isTapLocked = true;
+							if (_settings.mobileUI_tapDelay > -1)
+								tapId = window.setTimeout(function() { window.clearTimeout(tapId); isTapLocked = false; }, _settings.mobileUI_tapDelay);
+						}
+					})
+					.bind('touchend' + (suffix ? '.' + suffix : ''), function(e) {
+						if (isTapLocked)
+						{
+							isTapLocked = false;
+							window.clearTimeout(tapId);
+							(f)(e);
+						}
+					});
+					
+				if (noMove)
+					target
+						.bind('touchmove' + (suffix ? '.' + suffix : ''), function(e) {
+							isTapLocked = false;
+							window.clearTimeout(tapId);
+						});
+					
+			}
+			else
+				target.bind('click' + (suffix ? '.' + suffix : ''), f);
+
+			return target;
+		};
+
+		jQuery.fn.untap_5grid = function(suffix) {
+			var target = jQuery(this);
+			
+			if (isTouch)
+			{
+				target
+					.unbind('touchstart' + (suffix ? '.' + suffix : ''))
+					.unbind('touchend' + (suffix ? '.' + suffix : ''))
+					.unbind('touchmove' + (suffix ? '.' + suffix : ''));
+			}
+			else
+				target.unbind('click' + (suffix ? '.' + suffix : ''));
+				
+			return target;
+		};
+		
 	// Shortcut methods
-		_headQueue.pushI_5grid = function(s) { _headQueue.push({ type: 'i', value: s }); };
-		_headQueue.pushE_5grid = function(s) { _headQueue.push({ type: 'e', value: s }); }; 
-		_headQueue.process_5grid = function() {
+		headQueue.pushI_5grid = function(s) { headQueue.push({ type: 'i', value: s }); };
+		headQueue.pushE_5grid = function(s) { headQueue.push({ type: 'e', value: s }); }; 
+		headQueue.process_5grid = function() {
 			var doE;
 			if (document.createStyleSheet)
 				doE = function(s) { document.createStyleSheet(s); };
 			else
 				doE = function(s) { _head.append('<link rel="stylesheet" href="' + s + '" />'); };
 
-			for (x in _headQueue)
+			for (x in headQueue)
 			{
-				if (_headQueue[x].type == 'i')
-					_head.append('<style>' + _headQueue[x].value + '</style>');
-				else if (_headQueue[x].type == 'e')
-					(doE)(_headQueue[x].value);
+				if (headQueue[x].type == 'i')
+					_head.append('<style>' + headQueue[x].value + '</style>');
+				else if (headQueue[x].type == 'e')
+					(doE)(headQueue[x].value);
 			}
 		};
 		jQuery.fn.disableSelection_5grid = function() { return jQuery(this).css('user-select', 'none').css('-khtml-user-select', 'none').css('-moz-user-select', 'none').css('-o-user-select', 'none').css('-webkit-user-select', 'none'); }
 		jQuery.fn.enableSelection_5grid = function() { return jQuery(this).css('user-select', 'auto').css('-khtml-user-select', 'auto').css('-moz-user-select', 'auto').css('-o-user-select', 'auto').css('-webkit-user-select', 'auto'); }
-		jQuery.fn.accelerate_5grid = function() { return jQuery(this).css('-webkit-transform', 'translateZ(0)').css('-webkit-backface-visibility', 'hidden').css('-webkit-perspective', '1000'); }
+		jQuery.fn.accelerate_5grid = function() { return jQuery(this).css('-webkit-transform', 'translateZ(0)').css('-webkit-backface-visibility', 'hidden').css('-webkit-perspective', '500'); }
 
-	// Determine base URL, opts
+	// Determine base URL, settings
 		x = jQuery('script').filter(function() { return this.src.match(/5grid\/init\.js/); }).first();
 		y = x.attr('src').split('?');
-		_baseURL = y[0].replace(/5grid\/init\.js/, '');
-		_opts = new Array();
+		baseURL = y[0].replace(/5grid\/init\.js/, '');
 
-		// Default opts
-			_opts['use'] = 'mobile,desktop';
-			_opts['prefix'] = 'style';
-			_opts['mobileUI'] = 0;
-			_opts['mobileUI.force'] = 0;
-			_opts['mobileUI.titleBarHeight'] = 44;
-			_opts['mobileUI.titleBarOverlaid'] = 0;
-			_opts['mobileUI.openerWidth'] = 60;
-			_opts['mobileUI.openerText'] = '=';
-			_opts['mobileUI.titleBarFixed'] = 1;
-			_opts['mobileUI.theme'] = 'beveled';
-			_opts['mobileUI.themeTitleBarColor'] = '#444444';
-			_opts['mobileUI.themeNavColor'] = '#272727';
-			_opts['mobileUI.hideAddressBar'] = 0;
-			_opts['viewport.is1000px'] = 1040;
-			_opts['viewport.is1200px'] = 1280;
-			_opts['debug.noExtLoad'] = 0;
-
-		// Custom opts
+		// Override settings
 			if (y.length > 1)
-			{ 
+			{
 				x = y[1].split('&');
 				for (v in x)
 				{
 					w = x[v].split('=');
-					_opts[w[0]] = w[1];
+					wk = w[0].replace(/\./, '_');
+					wv = w[1];
+					
+					// Thanks, @cmsalvado! :)
+					if (!isNaN(parseFloat(wv)) && isFinite(wv))
+						wv = parseInt(wv);
+					
+					_settings[wk] = wv;
 				}
 			}
 	
-	// Debug options
-		if (_opts['debug.noExtLoad'] == 1)
-			_headQueue.pushE_5grid = function(s) { };
+	// Debug settings
+		if (_settings.debug_noExtLoad == 1)
+			headQueue.pushE_5grid = function(s) { };
 	
 	// Determine viewing modes
-		_desktop = _mobile = _fluid = _1000px = _1200px = _mobileOnly = false;
-		v = _opts['use'].split(',');
+		doDesktop = doMobile = doFluid = do1000px = do1200px = doMobileOnly = false;
+		v = _settings.use.split(',');
 		
 		if (jQuery.inArray('fluid', v) > -1)
-			_fluid = true;
+			doFluid = true;
 		if (jQuery.inArray('desktop', v) > -1)
-			_desktop = true;
+			doDesktop = true;
 		if (jQuery.inArray('1000px', v) > -1)
-			_1000px = true;
+			do1000px = true;
 		if (jQuery.inArray('1200px', v) > -1)
-			_1200px = true;
+			do1200px = true;
 		if (jQuery.inArray('mobile', v) > -1)
-			_mobile = true;
+			doMobile = true;
 
-		if (_mobile && !_fluid && !_1000px && !_1200px && !_desktop)
-			_mobileOnly = true;
-			//_desktop = true;
+		if (doMobile && !doFluid && !do1000px && !do1200px && !doDesktop)
+			doMobileOnly = true;
 
-/*********************/
-/* Core              */
-/*********************/
+	// Apply workarounds for broken/old browsers
 
-	// Legacy IE fixes
-		if (jQuery.browser.msie)
-		{
-			// HTML5 Shiv
-				if (jQuery.browser.version < 9)
-					_head.append('<script type="text/javascript" src="' + _baseURL + '5grid/html5shiv.js" />');
+		// Android, Webkit <= 534
+			if (navigator.userAgent.match(/Android.+AppleWebKit\/534/))
+				_settings.mobileUI_titleBarFixed = 0;
 
-			// Versions that don't support CSS3 pseudo classes
-				if (jQuery.browser.version < 8)
-				{
-					jQuery(function() {
-						jQuery('.5grid, .5grid-layout, .do-5grid').after('<div style="clear: both;"></div>');
-					});
-				}
-		}
+		// IE <= 8
+			if (jQuery.browser.msie)
+			{
+				// HTML5 Shiv
+					if (jQuery.browser.version < 9)
+						_head.append('<script type="text/javascript" src="' + baseURL + '5grid/html5shiv.js" />');
+
+				// Versions that don't support CSS3 pseudo classes
+					if (jQuery.browser.version < 8)
+					{
+						jQuery(function() {
+							jQuery('.5grid, .5grid-layout, .do-5grid').after('<div style="clear: both;"></div>');
+							jQuery('.5grid-layout').css('position', 'relative');
+							jQuery('.5grid, .do-5grid').css('position', 'relative');
+							jQuery('.5grid > .row > :first-child, .5grid-layout > .row > :first-child, .do-5grid > .row > :first-child').css('margin-left', '0');
+							jQuery('.5grid > .row:first-child, .5grid-layout > .row:first-child, .do-5grid > .row:first-child').css('margin-top', '0');
+							jQuery('.5grid > .row:last-child, .5grid-layout > .row:last-child, .do-5grid > .row:last-child').css('margin-bottom', '0');
+						});
+					}
+			}
 
 	// Insert stylesheets
-		_headQueue.pushE_5grid(_baseURL + '5grid/core.css')
-		_headQueue.pushE_5grid(_baseURL + _opts['prefix'] + '.css');
+		headQueue.pushE_5grid(baseURL + '5grid/core.css')
+		headQueue.pushE_5grid(baseURL + _settings.prefix + '.css');
 
 /*********************/
 /* Responsive        */
 /*********************/
 
 	(function() {
-		var ww = _window.width(), sw = screen.width, orientation = window.orientation;
-
+		var	ww = _window.width(),
+			sw = screen.width,
+			orientation = window.orientation;
 		// Fix: On iOS, screen.width is always the width of the device held in portrait mode.
 		// Android, however, sets it to the width of the device in its current orientation.
 		// This ends up breaking our detection on HD devices held in landscape mode, so we
@@ -189,321 +289,466 @@
 			sw = screen.height;
 
 		// Mobile (exclusive)
-		if ((_mobile && (ww <= 480 || sw <= 480)) || _mobileOnly)
+		if ((doMobile && (ww <= _settings.breakpoint_mobile || sw <= _settings.breakpoint_mobile)) || doMobileOnly)
 		{
 			_5grid.isMobile = true;
-			_head.prepend('<meta name="viewport" content="initial-scale=1.0; minimum-scale=1.0; maximum-scale=1.0;" />');
-			_headQueue.pushE_5grid(_baseURL + '5grid/core-mobile.css');
+			_head.prepend('<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />');
+			headQueue.pushE_5grid(baseURL + '5grid/core-mobile.css');
 			
-			if (_opts['mobileUI'] == 1)
+			if (_settings.mobileUI == 1)
 			{
-				_opts['mobileUI.force'] = 1;
+				_settings.mobileUI_force = 1;
 
-				if (_opts['mobileUI.theme'] != 'none')
+				if (_settings.mobileUI_theme != 'none')
 				{
-					_headQueue.pushE_5grid(_baseURL + '5grid/mobileUI-' + _opts['mobileUI.theme'] + '.css');
+					headQueue.pushE_5grid(baseURL + '5grid/mobileUI-' + _settings.mobileUI_theme + '.css');
 
-					if (_opts['mobileUI.themeTitleBarColor'])
-						_headQueue.pushI_5grid('#mobileUI-site-titlebar { background: ' + _opts['mobileUI.themeTitleBarColor'] + '; }');
+					if (_settings.mobileUI_themeTitleBarColor)
+						headQueue.pushI_5grid('#mobileUI-site-titlebar { background-color: ' + _settings.mobileUI_themeTitleBarColor + '; }');
 
-					if (_opts['mobileUI.themeNavColor'])
-						_headQueue.pushI_5grid('#mobileUI-site-nav { background: ' + _opts['mobileUI.themeNavColor'] + '; }');
+					if (_settings.mobileUI_themeNavColor)
+						headQueue.pushI_5grid('#mobileUI-site-nav { background-color: ' + _settings.mobileUI_themeNavColor + '; }');
 				}
 			}
 
-			_headQueue.pushE_5grid(_baseURL + _opts['prefix'] + '-mobile.css');
+			headQueue.pushE_5grid(baseURL + _settings.prefix + '-mobile.css');
 		}
 		else
 		{
 			// Fluid (exclusive)
-			if (_fluid)
+			if (doFluid)
 			{
 				_5grid.isFluid = true;
-				_head.prepend('<meta name="viewport" content="width=' + _opts['viewport.is1200px'] + '" />');
-				_headQueue.pushE_5grid(_baseURL + '5grid/core-desktop.css');
-				_headQueue.pushE_5grid(_baseURL + '5grid/core-fluid.css');
-				_headQueue.pushE_5grid(_baseURL + _opts['prefix'] + '-fluid.css');
+				_head.prepend('<meta name="viewport" content="width=' + _settings.viewport_is1200px + '" />');
+				headQueue.pushE_5grid(baseURL + '5grid/core-desktop.css');
+				headQueue.pushE_5grid(baseURL + '5grid/core-fluid.css');
+				headQueue.pushE_5grid(baseURL + _settings.prefix + '-fluid.css');
 			}
 			// Desktop
-			else if (_desktop)
+			else if (doDesktop)
 			{
 				_5grid.isDesktop = true;
-				_headQueue.pushE_5grid(_baseURL + '5grid/core-desktop.css');
-				_headQueue.pushE_5grid(_baseURL + _opts['prefix'] + '-desktop.css');
+				headQueue.pushE_5grid(baseURL + '5grid/core-desktop.css');
+				headQueue.pushE_5grid(baseURL + _settings.prefix + '-desktop.css');
 			
 				// 1200px
-				if (ww >= 1200)
+				if (ww >= _settings.breakpoint_1000px)
 				{
 					_5grid.is1200px = true;
-					_head.prepend('<meta name="viewport" content="width=' + _opts['viewport.is1200px'] + '" />');
-					_headQueue.pushE_5grid(_baseURL + '5grid/core-1200px.css');
+					_head.prepend('<meta name="viewport" content="width=' + _settings.viewport_is1200px + '" />');
+					headQueue.pushE_5grid(baseURL + '5grid/core-1200px.css');
 					
 					// Load 1200px stylesheet if 1200px was explicitly enabled
-					if (_1200px)
-						_headQueue.pushE_5grid(_baseURL + _opts['prefix'] + '-1200px.css');
+					if (do1200px)
+						headQueue.pushE_5grid(baseURL + _settings.prefix + '-1200px.css');
 				}
 				// 1000px
 				else
 				{
 					_5grid.is1000px = true;
-					_head.prepend('<meta name="viewport" content="width=' + _opts['viewport.is1000px'] + '" />');
-					_headQueue.pushE_5grid(_baseURL + '5grid/core-1000px.css');
+					_head.prepend('<meta name="viewport" content="width=' + _settings.viewport_is1000px + '" />');
+					headQueue.pushE_5grid(baseURL + '5grid/core-1000px.css');
 
 					// Load 1000px stylesheet if 1000px was explicitly enabled
-					if (_1000px)
-						_headQueue.pushE_5grid(_baseURL + _opts['prefix'] + '-1000px.css');
+					if (do1000px)
+						headQueue.pushE_5grid(baseURL + _settings.prefix + '-1000px.css');
 				}
 			}
 			else
 			{
 				// 1000px (exclusive)
-				if (_1000px && (ww < 1200 || !_1200px))
+				if (do1000px && (ww < _settings.breakpoint_1000px || !do1200px))
 				{
 					_5grid.isDesktop = true;
 					_5grid.is1000px = true;
-					_head.prepend('<meta name="viewport" content="width=' + _opts['viewport.is1000px'] + '" />');
-					_headQueue.pushE_5grid(_baseURL + '5grid/core-desktop.css');
-					_headQueue.pushE_5grid(_baseURL + '5grid/core-1000px.css');
-					_headQueue.pushE_5grid(_baseURL + _opts['prefix'] + '-1000px.css');
+					_head.prepend('<meta name="viewport" content="width=' + _settings.viewport_is1000px + '" />');
+					headQueue.pushE_5grid(baseURL + '5grid/core-desktop.css');
+					headQueue.pushE_5grid(baseURL + '5grid/core-1000px.css');
+					headQueue.pushE_5grid(baseURL + _settings.prefix + '-1000px.css');
 				}
 				// 1200px (exclusive)
-				else if (_1200px && (ww >= 1200 || !_1000px))
+				else if (do1200px && (ww >= _settings.breakpoint_1000px || !do1000px))
 				{
 					_5grid.isDesktop = true;
 					_5grid.is1200px = true;
-					_head.prepend('<meta name="viewport" content="width=' + _opts['viewport.is1200px'] + '" />');
-					_headQueue.pushE_5grid(_baseURL + '5grid/core-desktop.css');
-					_headQueue.pushE_5grid(_baseURL + '5grid/core-1200px.css');
-					_headQueue.pushE_5grid(_baseURL + _opts['prefix'] + '-1200px.css');
+					_head.prepend('<meta name="viewport" content="width=' + _settings.viewport_is1200px + '" />');
+					headQueue.pushE_5grid(baseURL + '5grid/core-desktop.css');
+					headQueue.pushE_5grid(baseURL + '5grid/core-1200px.css');
+					headQueue.pushE_5grid(baseURL + _settings.prefix + '-1200px.css');
 				}
 			}
 		}
 
-		jQuery(function() { jQuery('.5grid-layout').addClass('5grid'); });
+		jQuery(function() {
+			var _body = jQuery('body');
+
+			if (_5grid.isFluid)
+				_body.addClass('is-fluid');
+			if (_5grid.isDesktop)
+				_body.addClass('is-desktop');
+			if (_5grid.is1000px)
+				_body.addClass('is-1000px');
+			if (_5grid.is1200px)
+				_body.addClass('is-1200px');
+			if (_5grid.isMobile)
+				_body.addClass('is-mobile');
+			
+			jQuery('.5grid-layout').addClass('5grid'); 
+		});
 	})();
 
 /*********************/
 /* MobileUI          */
 /*********************/
 
-	if (_opts['mobileUI.force'] == 1)
+	if (_settings.mobileUI_force == 1)
 		jQuery(function() {
-			var body = jQuery('body'), speed = 0, easing = 'swing';
-			var mobileUI_site_nav, mobileUI_site_nav_opener, mobileUI_site_titlebar, mobileUI_site_wrapper, mobileUI_site_group;
+			var	_body = jQuery('body'),
+				_viewer,
+				_wrapper,
+				_nav,
+				_nav_inner,
+				_opener,
+				_titlebar,
+				_content;
+			var	speed = _settings.mobileUI_slideSpeed,
+				easing = 'swing',
+				ww = _window.width(),
+				wh = _window.height(),
+				_nav_isActing = false,
+				_nav_isOpen = false;
 		
-			body.wrapInner('<div id="mobileUI-site-wrapper" />');
+			_body.wrapInner('<div id="mobileUI-site-content" />');
+			_body.wrapInner('<div id="mobileUI-site-wrapper" />');
+			_body.wrapInner('<div id="mobileUI-site-viewer" />');
 		
 			// Move primary content
-				var main_content = jQuery('.mobileUI-main-content'), main_content_target = jQuery('.mobileUI-main-content-target');
+				var	_main_content = jQuery('.mobileUI-main-content'),
+					_main_content_target = jQuery('.mobileUI-main-content-target');
 				
-				if (main_content.length > 0)
-					if (main_content_target.length > 0)
-						main_content.prependTo(main_content_target);
+				if (_main_content.length > 0)
+					if (_main_content_target.length > 0)
+						_main_content.prependTo(_main_content_target);
 					else
-						main_content.prependTo(main_content.parent());
+						_main_content.prependTo(_main_content.parent());
 		
 			// Get site name, nav options
-				var x = jQuery('.mobileUI-site-name'), site_name = (x.length > 0 ? x.html() : '');
-				var site_nav_options = new Array();
+				var	x = jQuery('.mobileUI-site-name'), site_name = (x.length > 0 ? x.html() : ''),
+					site_nav_options = new Array();
 				
 				jQuery('.mobileUI-site-nav a').each(function() {
 					var t = jQuery(this), indent;
 					indent = Math.max(0,t.parents('li').length - 1);
 					site_nav_options.push(
-						'<a href="' + t.attr('href') + '"><span class="indent-' + indent + '"></span>' + t.text() + '</a>'
+						'<div class="mobileUI-site-nav-link" xhref="' + t.attr('href') + '"><span class="indent-' + indent + '"></span>' + t.text() + '</div>'
 					);
 				});
 
+			// Configure elements
 				if (site_nav_options.length > 0)
 				{
-					mobileUI_site_nav = jQuery('<div id="mobileUI-site-nav"><nav>' + site_nav_options.join('') + '</nav></div>');
-					mobileUI_site_nav_opener = jQuery('<div id="mobileUI-site-nav-opener">' + _opts['mobileUI.openerText'] + '</div>');
+					_nav_inner = jQuery('<div id="mobileUI-site-nav-inner"><nav>' + site_nav_options.join('') + '</nav></div>');
+					_nav = jQuery('<div id="mobileUI-site-nav"></div>');
+					_nav_inner.appendTo(_nav);
+					_opener = jQuery('<div id="mobileUI-site-nav-opener">' + _settings.mobileUI_openerText + '</div>');
 				}
 				else
 				{
-					mobileUI_site_nav = jQuery();
-					mobileUI_site_nav_opener = jQuery();
+					_nav_inner = jQuery();
+					_nav = jQuery();
+					_opener = jQuery();
 				}
 
-			// Configure elements
-				mobileUI_site_titlebar = jQuery('<div id="mobileUI-site-titlebar"><div id="mobileUI-site-title">' + site_name + '</div></div>');
-				mobileUI_site_wrapper = jQuery('#mobileUI-site-wrapper');
-				mobileUI_site_group = jQuery().add(mobileUI_site_wrapper).add(mobileUI_site_titlebar);
+				_content = jQuery('#mobileUI-site-content');
+				_titlebar = jQuery('<div id="mobileUI-site-titlebar"><div id="mobileUI-site-title">' + site_name + '</div></div>');
+				_wrapper = jQuery('#mobileUI-site-wrapper');
+				_viewer = jQuery('#mobileUI-site-viewer');
 
-				body.bind('touchmove', function(e) {
-					if (mobileUI_site_nav.isOpen_5grid)
-					{
-						e.stopPropagation();
-						e.preventDefault();
-					}
-				});
+				var	_nav_width = ww - _settings.mobileUI_openerWidth,
+					_nav_inner_pos,
+					_content_width = ww,
+					_wrapper_width = _nav_width + _content_width;
 
-				// Mobile Site Wrapper
-					mobileUI_site_wrapper
-						.css('position', 'relative')
-						.css('z-index', '100')
-						.css('top', (_opts['mobileUI.titleBarOverlaid'] == 1 ? 0 : _opts['mobileUI.titleBarHeight'] + 'px'))
-						.css('width', '100%')
-						.bind(_eventType, function(e) {
-							if (mobileUI_site_nav.isOpen_5grid)
-							{
-								e.preventDefault();
-								body.trigger('5grid_closeNav');
-							}
-						})
-						.bind('5grid_top', function(e) {
-							if (_isLocked)
-								return;
-							_isLocked = true;
-							body.animate({ scrollTop: 0 }, 400, 'swing', function() { _isLocked = false; });
-						});
-
-				// Mobile Site Nav Opener
-					mobileUI_site_nav_opener
+				// Wrapper
+					_wrapper
+						.accelerate_5grid()
 						.css('position', 'absolute')
-						.css('z-index', '152')
-						.css('cursor', 'pointer')
-						.disableSelection_5grid()
-						.appendTo(mobileUI_site_titlebar)
-						.bind(_eventType, function(e) {
-							e.stopPropagation();
-							e.preventDefault();
-							body.trigger('5grid_toggleNav');
-						});
-						
-				// Mobile Site Bar
-					mobileUI_site_titlebar
-						.css('position', (_opts['mobileUI.titleBarFixed'] == 1 ? 'fixed' : 'absolute'))
-						.css('z-index', '151')
-						.css('top', '0')
-						.css('width', '100%')
-						.css('overflow', 'hidden')
-						.css('height', _opts['mobileUI.titleBarHeight'] + 'px')
-						.css('line-height', _opts['mobileUI.titleBarHeight'] + 'px')
-						.disableSelection_5grid()
-						.prependTo(body);
-						
-				// Mobile Site Nav
-					mobileUI_site_nav
-						.css('position', 'fixed')
-						.css('z-index', '150')
-						.css('top', '0')
-						.css('height', '100%')
-						.disableSelection_5grid()
-						.prependTo(body);
+						.width(_wrapper_width);
 
-					mobileUI_site_nav
-						.css('left', -1 * mobileUI_site_nav.width())
-						.hide()
-						.click(function(e) {
-							e.stopPropagation();
-						});
-						
-					mobileUI_site_nav.find('a')
-						.click(function(e) {
-							e.preventDefault();
-							e.stopPropagation();
-							body.trigger('5grid_closeNav', [jQuery(this).attr('href')]);
-						});
+				// Nav
+					_nav
+						.accelerate_5grid()
+						.width(_nav_width)
+						.prependTo(_wrapper)
+						.css('position', 'absolute')
+						.css('left', (-1 * _nav_width))
+						.prepend('<div style="position: absolute; top: 0px; right: -1px; width: 1px; height: 1px;"></div>');
 
-					if (_isTouch) {
-						var _mobileUI_site_nav_pos = 0;
-						mobileUI_site_nav
-							.css('overflow', 'hidden')
+					// Inner
+						_nav_inner
+							.css('overflow', (isTouch ? 'hidden' : 'auto'))
 							.bind('touchstart', function(e) {
-								_mobileUI_site_nav_pos = mobileUI_site_nav.scrollTop() + event.touches[0].pageY;
+								_nav_inner_pos = _nav_inner.scrollTop() + e.originalEvent.touches[0].pageY;
 							})
 							.bind('touchmove', function(e) {
 								e.preventDefault();
 								e.stopPropagation();
-								mobileUI_site_nav.scrollTop(_mobileUI_site_nav_pos - event.touches[0].pageY);
+								_nav_inner.scrollTop(_nav_inner_pos - e.originalEvent.touches[0].pageY);
 							});
+
+					// Links
+						_nav.find('.mobileUI-site-nav-link')
+							.disableSelection_5grid()
+							.css('cursor', 'pointer')
+							.each(function() {
+								var t = jQuery(this);
+								t.tap_5grid(function(e) {
+									e.preventDefault();
+									e.stopPropagation();
+								
+									if (_nav_isOpen)
+									{
+										var href = t.attr('xhref');
+										if (href && href.length > 0)
+											_body.trigger('5grid_closeNav', [href]);
+									}
+								});
+							});
+
+				// Opener
+					_opener
+						.accelerate_5grid()
+						.css('position', 'absolute')
+						.css('z-index', 10001)
+						.css('cursor', 'pointer')
+						.disableSelection_5grid()
+						.appendTo(_titlebar)
+						.tap_5grid(function(e) {
+							e.stopPropagation();
+							e.preventDefault();
+							_body.trigger('5grid_toggleNav');
+						}, '', true);
+
+				// Titlebar
+					_titlebar
+						.accelerate_5grid()
+						.width(_content_width)
+						.height(_settings.mobileUI_titleBarHeight)
+						.css('z-index', 10000)
+						.prependTo(_viewer);
+						
+					if (_settings.mobileUI_titleBarFixed)
+					{
+						_titlebar
+							.bind('goActive_5grid', function() {
+								_titlebar
+									.css('position', 'fixed')
+									.css('top', 0)
+									.css('left', 0);
+							})
+							.bind('goInactive_5grid', function() {
+								_titlebar
+									.css('position', 'absolute')
+									.css('top', _window.scrollTop())
+									.css('left', _nav.width);
+							})
+							.trigger('goActive_5grid');
 					}
 					else
-						mobileUI_site_nav.css('overflow', 'auto');
+					{
+						_titlebar
+							.css('position', 'absolute')
+							.css('top', _window.scrollTop())
+							.css('left', _nav.width);
+					}
 
-					mobileUI_site_nav.isOpen_5grid = false;
+				// Content
+					_content
+						.width(_content_width)
+						.css('position', 'relative');
+						
+					if (_settings.mobileUI_titleBarOverlaid)
+						_content
+							.bind('resize', function() { _viewer.height(_content.height()); });
+					else
+						_content
+							.css('padding-top', _settings.mobileUI_titleBarHeight)
+							.bind('resize', function() { _viewer.height(_content.height() + _settings.mobileUI_titleBarHeight); });
+
+				// Viewer
+					_viewer
+						.css('position', 'absolute')
+						.css('overflow', 'hidden')
+						.width(_content_width)
+						.height(_content.height() + _settings.mobileUI_titleBarHeight);
 
 				// Body
-					body	
-						.css('overflow', (_isTouch ? 'hidden' : 'visible'))
+					_body
 						.bind('5grid_toggleNav', function() {
-							if (mobileUI_site_nav.isOpen_5grid)
-								body.trigger('5grid_closeNav');
+							if (_nav_isOpen)
+								_body.trigger('5grid_closeNav');
 							else
-								body.trigger('5grid_openNav');
+								_body.trigger('5grid_openNav');
 						})
 						.bind('5grid_openNav', function() {
-							if (_isLocked)
-								return true;
-							_isLocked = true;
-							var nw = jQuery(window).width() - _opts['mobileUI.openerWidth'];
-							mobileUI_site_group
-								.css('width', jQuery(window).width())
-								.disableSelection_5grid();
-							mobileUI_site_nav
-								.show()
-								.scrollTop(0)
-								.css('width', nw)
-								.css('left', -1 * nw);
-							mobileUI_site_nav.animate({ left: 0 }, speed, easing);
-							mobileUI_site_group.animate({ left: nw }, speed, easing, function() {
-								_isLocked = false;
-								mobileUI_site_nav.isOpen_5grid = true;
-								_5grid.trigger('mobileUINavOpen');
-							});
-						})
-						.bind('5grid_closeNav', function(e, url) {
-							if (_isLocked)
-								return true;
-							_isLocked = true;
-							var nw = mobileUI_site_nav.width();
-							mobileUI_site_nav.animate({ left: -1 * nw }, speed, easing);
-							mobileUI_site_group.animate({ left: 0 }, speed, easing, function() {
-								mobileUI_site_group
-									.css('width', '100%')
-									.css('overflow', 'visible')
-									.enableSelection_5grid();
-								mobileUI_site_wrapper.css('position', 'relative');
-								mobileUI_site_titlebar.css('position', (_opts['mobileUI.titleBarFixed'] == 1 ? 'fixed' : 'absolute'));
-								mobileUI_site_nav.isOpen_5grid = false;
-								mobileUI_site_nav.hide();
-								_5grid.trigger('mobileUINavclose');
-								_isLocked = false;
+							
+							// Check locking
+								if (isLocked)
+									return true;
 								
-								if (url)
-									window.setTimeout(function() {
-										window.location.href = url;
-									}, 150);
-							});
+								isLocked = true;
+
+							// Mark nav as acting
+								_nav_isActing = true;
+
+							// Disable scrolling
+								_body
+									.bind('touchstart.5grid_nav_block', function(e) {
+										e.stopPropagation();
+										e.preventDefault();
+									});
+									
+								_window
+									.bind('scroll.5grid_nav_block', function(e) {
+										e.preventDefault();
+										e.stopPropagation();
+										
+										if (_nav_isOpen)
+											_body.trigger('5grid_closeNav', [null, true]);
+									});
+
+							// Reposition nav
+								_nav
+									.css('top', _window.scrollTop());
+
+								_nav_inner
+									.height(window.innerHeight - _settings.mobileUI_navInnerPad)
+									.scrollTop(0);
+
+							// Deactivate titlebar
+								_titlebar
+									.trigger('goInactive_5grid');
+
+							// Animate
+								_wrapper.add(_titlebar)
+									.animate({ left: _nav_width }, speed, easing, function() {
+										// Unlock
+											isLocked = false;
+										
+										// Correct body position (in case it was still scrolling when the nav opened)
+											var x = parseInt(_nav.css('top'));
+											if (x > 0)
+												_window.scrollTop(parseInt(_nav.css('top')));
+										
+										// Mark nav as open, unmark as acting
+											window.setTimeout(function() {
+												_nav_isOpen = true;
+												_nav_isActing = false;
+											}, 300);
+										
+										// Add close event to content
+											_content
+												.tap_5grid(function(e) {
+													e.preventDefault();
+													e.stopPropagation();
+													_body.trigger('5grid_closeNav');
+												}, '5grid_nav_cclose');
+						
+										// Trigger event
+											_5grid.trigger('mobileUINavOpen');
+									});
+						})
+						.bind('5grid_closeNav', function(e, url, fast) {
+							
+							// Check locking
+								if (isLocked)
+									return true;
+
+								isLocked = true;
+
+							// Mark nav as acting
+								_nav_isActing = true;
+
+							// Remove close event from content
+								_content.untap_5grid('5grid_nav_cclose');
+
+							// Animate
+								_wrapper.add(_titlebar)
+									.animate({ left: 0 }, (fast ? 0 : speed), easing, function() {
+										
+										// Reactivate titlebar
+											_titlebar
+												.trigger('goActive_5grid');
+
+										// Trigger event
+											_5grid.trigger('mobileUINavclose');
+
+										// Unlock
+											isLocked = false;
+										
+										// Re-enable scrolling
+											_body.unbind('touchstart.5grid_nav_block');
+											_window.unbind('touchmove.5grid_nav_block');
+
+										// Mark nav as closed, unmark as acting
+											_nav_isOpen = false;
+											_nav_isActing = false;
+										
+										// If a URL was passed, go to it
+											if (url)
+												window.setTimeout(function() {
+													window.location.href = url;
+												}, 150);
+									});
 						});
-				
+
 					// Window
 						_window
 							.bind('orientationchange', function(e) {
-								if (mobileUI_site_nav.isOpen_5grid) {
-									var nw = jQuery(window).width() - _opts['mobileUI.openerWidth'];
-									mobileUI_site_nav.css('width', nw);
-									mobileUI_site_group.css('left', nw);
-								}
-								_5grid.trigger('orientationChange');
+								
+								// Recalculate widths
+									ww = _window.width();
+									_nav_width = ww - _settings.mobileUI_openerWidth;
+									_content_width = ww;
+									_wrapper_width = _nav_width + _content_width;
+
+								// Resize
+									_wrapper.width(_wrapper_width);
+									_content.width(_content_width);
+									_nav
+										.css('left', (-1 * _nav_width))
+										.width(_nav_width);
+
+									_titlebar.width(ww);
+									_viewer.width(ww);
+
+								// Trigger event
+									_5grid.trigger('orientationChange');
 							});
-				
+
 			// Remove mobileUI-hide elements
 				jQuery('.mobileUI-hide').remove();
 				
 			// Remove address bar
-				if (_opts['mobileUI.hideAddressBar'] == 1 && _window.scrollTop() == 0)
-					window.scrollTo(0, 1);
+				if (_settings.mobileUI_hideAddressBar == 1)
+					_window.load(function() {
+						if (_window.scrollTop() == 0)
+							window.scrollTo(0, 1);
+					});
 		});
 
 /*********************/
 /* Head Queue        */
 /*********************/
 
-	_headQueue.process_5grid();
+	headQueue.process_5grid();
 	_5grid.isReady = true;
 
-	jQuery(function() { _5grid.readyCheck(); });
+	jQuery(function() {
+		if (_5grid.readyWait)
+			jQuery(window).load(function() { _5grid.readyCheck(); });
+		else
+			_5grid.readyCheck();
+	});
 
 })();

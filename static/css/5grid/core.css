@@ -1,5 +1,5 @@
 /*****************************************************************/
-/* 5grid 0.3.2 by n33.co | MIT+GPLv2 license licensed            */
+/* 5grid 0.4 by n33.co | MIT+GPLv2 license licensed              */
 /* core.css: Core stylesheet                                     */
 /*****************************************************************/
 
@@ -102,20 +102,20 @@
 	#mobileUI-site-nav {
 	}
 
-		#mobileUI-site-nav nav {
+		#mobileUI-site-nav-inner {
 		}
 	
-		#mobileUI-site-nav a {
+		.mobileUI-site-nav-link {
 			display: block;
 		}
 	
-		#mobileUI-site-nav a .indent-1 { display: inline-block; width: 1em; }
-		#mobileUI-site-nav a .indent-2 { display: inline-block; width: 2em; }
-		#mobileUI-site-nav a .indent-3 { display: inline-block; width: 3em; }
-		#mobileUI-site-nav a .indent-4 { display: inline-block; width: 4em; }
-		#mobileUI-site-nav a .indent-5 { display: inline-block; width: 5em; }
-		#mobileUI-site-nav a .indent-6 { display: inline-block; width: 6em; }
-		#mobileUI-site-nav a .indent-7 { display: inline-block; width: 7em; }
-		#mobileUI-site-nav a .indent-8 { display: inline-block; width: 8em; }
-		#mobileUI-site-nav a .indent-9 { display: inline-block; width: 9em; }
-		#mobileUI-site-nav a .indent-10 { display: inline-block; width: 10em; }
+		.mobileUI-site-nav-link .indent-1 { display: inline-block; width: 1em; }
+		.mobileUI-site-nav-link .indent-2 { display: inline-block; width: 2em; }
+		.mobileUI-site-nav-link .indent-3 { display: inline-block; width: 3em; }
+		.mobileUI-site-nav-link .indent-4 { display: inline-block; width: 4em; }
+		.mobileUI-site-nav-link .indent-5 { display: inline-block; width: 5em; }
+		.mobileUI-site-nav-link .indent-6 { display: inline-block; width: 6em; }
+		.mobileUI-site-nav-link .indent-7 { display: inline-block; width: 7em; }
+		.mobileUI-site-nav-link .indent-8 { display: inline-block; width: 8em; }
+		.mobileUI-site-nav-link .indent-9 { display: inline-block; width: 9em; }
+		.mobileUI-site-nav-link .indent-10 { display: inline-block; width: 10em; }

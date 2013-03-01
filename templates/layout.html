@@ -25,81 +25,98 @@
 		<script src="/static/css/5grid/init.js?use=mobile,desktop,1000px&amp;mobileUI=1&amp;mobileUI.theme=none'"></script>
 		<!--[if IE 9]><link rel="stylesheet" href="css/style-ie9.css" /><![endif]-->
 	</head>
-	<body>
-		<div id="wrapper">
-			<div id="header-wrapper">
-				<header id="header">
-					<div class="5grid-layout">
-						<div class="row">
-							<div class="12u" id="logo"> <!-- Logo -->
-								<h1><a href="/" class="mobileUI-site-name">Whereaboutzz</a></h1>
-								<p>Explore the world, simply.</p>
-							</div>
-						</div>
-					</div>
-					<div class="5grid-layout">
-						<div class="row">
-							<div class="12u" id="menu">
-								<div id="menu-wrapper">
-									<nav class="mobileUI-site-nav">
-										<ul>
-											<li class="{{ homeActive }}"><a href="/">Home</a></li>
-											<li class="{{ nearbyActive }}"><a href="/nearby">Nearby</a></li>
-											<li class="{{ walkingActive }}"><a href="/walking-tour">Walking Tour</a></li>
-											<li class="{{ photoActive }}"><a href="/photo-tour">Photo Tour</a></li>
-										</ul>
-									</nav>
-								</div>
-							</div>
-						</div>
-					</div>
-				</header>
-			</div>
-			<div id="page-wrapper" class="5grid-layout">
-				{% block content %}
-				{% endblock %}
-			</div>
-			<div id="footer-content-wrapper">
+	<body class="homepage">
+		<!-- Header -->
+		<div id="header-wrapper">
+			<header id="header">
 				<div class="5grid-layout">
-					<div class="row" id="footer-content">
-						<div class="6u" id="box1">
-							<section>
-								<h2>Maecenas luctus lectus</h2>
-								<div>
-									<p><img src="images/pics05.jpg" alt="" width="180" height="120" class="imgleft">In posuere eleifend odio. Quisque semper augue mattis wisi. Maecenas ligula. Pellentesque viverra vulputate enim. Aliquam erat volutpat. Pellentesque tristique ante ut risus. Quisque dictum. Integer nisl risus, sagittis convallis, rutrum id, elementum congue, nibh. Suspendisse dictum porta lectus. Donec placerat odio vel elit. Nullam ante orci, pellentesque eget, tempus quis, ultrices in, est. Curabitur sit amet nulla. Nam in massa. Sed vel tellus. Curabitur sem urna, consequat vel, suscipit in, mattis placerat, nulla. Sed ac leo. Pellentesque imperdiet. Etiam neque. Vivamus consequat lorem at nisl. Nullam non wisi a sem semper eleifend. Donec mattis libero eget urna. Duis pretium velit ac mauris. Proin eu wisi suscipit nulla suscipit interdum. Aenean lectus lorem, imperdiet at, ultrices eget, ornare et, wisi. </p>
-								</div>
-							</section>
+					<div class="row">
+						<div class="5u" id="logo">
+							<h1><a href="/" class="mobileUI-site-name">Whereaboutzz</a></h1>
+							<p>Explore the world, simply.</p>
 						</div>
-						<div class="3u" id="box2">
-							<section>
-								<h2>Donec dictum metus</h2>
-								<ul class="style4">
-									<li class="first"><a href="#">Pellentesque quis elit non lectus pellentesque gravida blandit.</a></li>
-									<li><a href="#">Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</a></li>
-									<li><a href="#">Phasellus nec erat sit amet nibh pellentesque congue.</a></li>
-									<li><a href="#">Cras vitae metus aliquam pellentesque pharetra metus aliquam risus.</a></li>
+						<div class="7u" id="menu">
+							<nav class="mobileUI-site-nav">
+								<ul>
+									<li class="{{ homeActive }}"><a href="/">Home</a></li>
+									<li class="{{ nearbyActive }}"><a href="/nearby">Nearby</a></li>
+									<li class="{{ walkingActive }}"><a href="/walking-tour">Walking Tour</a></li>
+									<li class="{{ photoActive }}"><a href="/photo-tour">Photo Tour</a></li>
 								</ul>
-							</section>
-						</div>
-						<div class="3u" id="box3">
-							<section>
-								<h2>Nulla luctus eleifend</h2>
-								<ul class="style4">
-									<li class="first"><a href="#">Pellentesque quis elit non lectus gravida blandit.</a></li>
-									<li><a href="#">Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</a></li>
-									<li><a href="#">Phasellus nec erat sit amet nibh pellentesque congue.</a></li>
-									<li><a href="#">Cras vitae metus aliquam risus pellentesque pharetra.</a></li>
-								</ul>
-							</section>
+							</nav>
 						</div>
 					</div>
 				</div>
+			</header>
+		</div>
+		<div id="wrapper" class="5grid-layout">
+			{% block content %}
+			{% endblock %}
+			<!-- Marketing Content -->
+			<div id="marketing" class="row">
+
+				<div class="3u">
+					<section class="box">
+						<h2>Fusce</h2>
+						<p class="subtitle">Condimentum nisl</p>
+						<ul class="style1">
+							<li><a href="#">Donec dictum metus sapien</a></li>
+							<li><a href="#">DonecInteger gravida urna</a></li>
+							<li><a href="#">DonecEtiam posuere amet nisl</a></li>
+							<li><a href="#">DonecMauris vulputate nibh</a></li>
+						</ul>
+						<p><a href="#" class="button"><span>Read More</span></a></p>
+					</section>
+				</div>
+				<div class="3u">
+					<section class="box">
+						<h2>sapien</h2>
+						<p class="subtitle">luctus lectus</p>
+						<ul class="style1">
+							<li><a href="#">Donec dictum metus sapien</a></li>
+							<li><a href="#">DonecInteger gravida urna</a></li>
+							<li><a href="#">DonecEtiam posuere amet nisl</a></li>
+							<li><a href="#">DonecMauris vulputate nibh</a></li>
+						</ul>
+						<p><a href="#" class="button"><span>Read More</span></a></p>
+					</section>
+				</div>
+				<div class="3u">
+					<section class="box">
+						<h2>Nulla</h2>
+						<p class="subtitle">luctus eleifend</p>
+						<ul class="style1">
+							<li><a href="#">Donec dictum metus sapien</a></li>
+							<li><a href="#">DonecInteger gravida urna</a></li>
+							<li><a href="#">DonecEtiam posuere amet nisl</a></li>
+							<li><a href="#">DonecMauris vulputate nibh</a></li>
+						</ul>
+						<p><a href="#" class="button"><span>Read More</span></a></p>
+					</section>
+				</div>
+				<div class="3u">
+					<section class="box">
+						<h2>Donec</h2>
+						<p class="subtitle">dictum metus</p>
+						<ul class="style1">
+							<li><a href="#">Donec dictum metus sapien</a></li>
+							<li><a href="#">DonecInteger gravida urna</a></li>
+							<li><a href="#">DonecEtiam posuere amet nisl</a></li>
+							<li><a href="#">DonecMauris vulputate nibh</a></li>
+						</ul>
+						<p><a href="#" class="button"><span>Read More</span></a></p>
+					</section>
+				</div>
+			
 			</div>
 		</div>
-		<div id="copyright" class="5grid-layout">
-			<section>
-				<p>&copy; Whereaboutzz | Template from: <a href="http://html5templates.com/">HTML5Templates.com</a></p>
-			</section>
+		<!-- Copyright -->
+		<div class="5grid-layout" id="copyright">
+			<div class="row">
+				<div class="12u">
+					<p>&copy; Your Site Name | Images: <a href="http://fotogrph.com/">Fotogrph</a> | Design: <a href="http://html5templates.com/">HTML5Templates.com</a></p>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
