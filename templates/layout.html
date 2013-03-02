@@ -1,122 +1,38 @@
-<!DOCTYPE HTML>
+<!doctype html>
 
-<!--
-	Colorized: A responsive HTML5 website template by HTML5Templates.com
-	Released for free under the Creative Commons Attribution 3.0 license (html5templates.com/license)
-	Visit http://html5templates.com for more great templates or follow us on Twitter @HTML5T
--->
-
-<html>
+<html lang="en">
 	<head>
-		<title>Whereaboutzz</title>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<meta name="description" content="" />
-		<meta name="keywords" content="" />
-		<noscript>
-			<link rel="stylesheet" href="{{ url_for('static', filename='css/5grid/core.css') }}" />
-			<link rel="stylesheet" href="{{ url_for('static', filename='css/5grid/core-desktop.css') }}" />
-			<link rel="stylesheet" href="{{ url_for('static', filename='css/5grid/core-1200px.css') }}" />
-			<link rel="stylesheet" href="{{ url_for('static', filename='css/5grid/core-noscript.css') }}" />
-			<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-			<link rel="stylesheet" href="{{ url_for('static', filename='css/style-desktop.css') }}" />
-		</noscript>
-		<script src="{{ url_for('static', filename='css/5grid/jquery.js') }}"></script>
-		<!--needs to be specified without url_for because of html escaping -->
-		<script src="/static/css/5grid/init.js?use=mobile,desktop,1000px&amp;mobileUI=1&amp;mobileUI.theme=none'"></script>
-		<!--[if IE 9]><link rel="stylesheet" href="css/style-ie9.css" /><![endif]-->
+		<meta charset="utf-8">
+		<title>Responsive Header Nav</title>
+		<meta name="description" content="Responsive Header Nav">
+		<meta name="author" content="Treehouse">
+		<meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=1">
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/media_queries.css') }}">
+		<!--[if IE]> <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 	</head>
-	<body class="homepage">
-		<!-- Header -->
-		<div id="header-wrapper">
-			<header id="header">
-				<div class="5grid-layout">
-					<div class="row">
-						<div class="5u" id="logo">
-							<h1><a href="/" class="mobileUI-site-name">Whereaboutzz</a></h1>
-							<p>Explore the world, simply.</p>
-						</div>
-						<div class="7u" id="menu">
-							<nav class="mobileUI-site-nav">
-								<ul>
-									<li class="{{ homeActive }}"><a href="/">Home</a></li>
-									<li class="{{ nearbyActive }}"><a href="/nearby">Nearby</a></li>
-									<li class="{{ walkingActive }}"><a href="/walking-tour">Walking Tour</a></li>
-									<li class="{{ photoActive }}"><a href="/photo-tour">Photo Tour</a></li>
-								</ul>
-							</nav>
-						</div>
-					</div>
-				</div>
-			</header>
-		</div>
-		<div id="wrapper" class="5grid-layout">
-			{% block content %}
-			{% endblock %}
-			<!-- Marketing Content -->
-			<div id="marketing" class="row">
 
-				<div class="3u">
-					<section class="box">
-						<h2>Fusce</h2>
-						<p class="subtitle">Condimentum nisl</p>
-						<ul class="style1">
-							<li><a href="#">Donec dictum metus sapien</a></li>
-							<li><a href="#">DonecInteger gravida urna</a></li>
-							<li><a href="#">DonecEtiam posuere amet nisl</a></li>
-							<li><a href="#">DonecMauris vulputate nibh</a></li>
-						</ul>
-						<p><a href="#" class="button"><span>Read More</span></a></p>
-					</section>
-				</div>
-				<div class="3u">
-					<section class="box">
-						<h2>sapien</h2>
-						<p class="subtitle">luctus lectus</p>
-						<ul class="style1">
-							<li><a href="#">Donec dictum metus sapien</a></li>
-							<li><a href="#">DonecInteger gravida urna</a></li>
-							<li><a href="#">DonecEtiam posuere amet nisl</a></li>
-							<li><a href="#">DonecMauris vulputate nibh</a></li>
-						</ul>
-						<p><a href="#" class="button"><span>Read More</span></a></p>
-					</section>
-				</div>
-				<div class="3u">
-					<section class="box">
-						<h2>Nulla</h2>
-						<p class="subtitle">luctus eleifend</p>
-						<ul class="style1">
-							<li><a href="#">Donec dictum metus sapien</a></li>
-							<li><a href="#">DonecInteger gravida urna</a></li>
-							<li><a href="#">DonecEtiam posuere amet nisl</a></li>
-							<li><a href="#">DonecMauris vulputate nibh</a></li>
-						</ul>
-						<p><a href="#" class="button"><span>Read More</span></a></p>
-					</section>
-				</div>
-				<div class="3u">
-					<section class="box">
-						<h2>Donec</h2>
-						<p class="subtitle">dictum metus</p>
-						<ul class="style1">
-							<li><a href="#">Donec dictum metus sapien</a></li>
-							<li><a href="#">DonecInteger gravida urna</a></li>
-							<li><a href="#">DonecEtiam posuere amet nisl</a></li>
-							<li><a href="#">DonecMauris vulputate nibh</a></li>
-						</ul>
-						<p><a href="#" class="button"><span>Read More</span></a></p>
-					</section>
-				</div>
-			
-			</div>
-		</div>
-		<!-- Copyright -->
-		<div class="5grid-layout" id="copyright">
-			<div class="row">
-				<div class="12u">
-					<p>&copy; Your Site Name | Images: <a href="http://fotogrph.com/">Fotogrph</a> | Design: <a href="http://html5templates.com/">HTML5Templates.com</a></p>
-				</div>
-			</div>
-		</div>
-	</body>
+<body>
+	<header>
+		<a href="#" id="logo"></a>
+		<nav>
+			<a href="#" id="menu-icon"></a>
+			<ul>
+				<li><a href="#" class="current">Home</a></li>
+				<li><a href="#">About</a></li>
+				<li><a href="#">Work</a></li>
+				<li><a href="#">Blog</a></li>
+				<li><a href="#">Contact</a></li>
+			</ul>
+		</nav>
+	</header>
+	<section>
+		<img src="img/featured.png" alt="Respond" />
+		<h1>Respond to Your Surroundings</h1>
+		<p>...Filler Text</p>
+		<p>...Filler Text</p>
+		<p>Filler Text</p>
+	</section>
+</body>
+
 </html>
