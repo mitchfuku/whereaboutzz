@@ -1,12 +1,6 @@
 /*MEDIA QUERY*/
 @media only screen and (max-width : 640px) {
 
-	header {
-
-		position: absolute;
-
-	}
-
 	#menu-icon {
 
 		display:inline-block;
@@ -17,7 +11,6 @@
 
 		display: none;
 		position: absolute;
-		padding: 20px;
 		background: #fff;
 		border: 5px solid #444;
 		right: 20px;
