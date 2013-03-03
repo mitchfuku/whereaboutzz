@@ -21,7 +21,7 @@
 	{
 		margin: 0em;
 		padding: 0em;
-		background: #ECECEC url(images/main-bg.jpg) repeat;
+		background: #ECECEC url(/static/img/main-bg.jpg) repeat;
 		font-family: 'Open Sans', sans-serif;
 		font-size: 9.5pt;
 		color: #4e4e4e;
@@ -70,7 +70,7 @@
 	ul.style1 li
 	{
 		padding: 0.75em 0 0.75em 0em;
-		background: url(images/bullet-icon.png) no-repeat left 50%;
+		background: url(/static/img/bullet-icon.png) no-repeat left 50%;
 	}
 	
 	ul.style1 a
@@ -266,7 +266,7 @@
 		height: 8em;
 		margin-bottom: 3em;
 		padding-top: 5.75em;
-		background: #F62A2A url(images/header-wrapper-bg.png) repeat;
+		background: #F62A2A url(/static/img/header-wrapper-bg.png) repeat;
 		box-shadow: inset 0 -10px 20px -10px rgba(0,0,0,.30);
 	}
 
