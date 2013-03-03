@@ -2,7 +2,6 @@ import os
 from flask import Flask, render_template, request, Response
 import Cookie
 import os
-import time
 
 app = Flask(__name__)
 
@@ -27,36 +26,48 @@ def getLocation():
 @app.route('/set-location', methods=['GET', 'POST'])
 def storeLocation():
     from flask import make_response, redirect, url_for
-
+    import time
     response = make_response(redirect('/'))
+    if request.form['redirect']:
+        response = make_response(redirect(request.form['redirect']))
     # if cookieCheck():
     #     print "here"
     #     #reset cookie
     #     #return response
-    # print "here"
     lat = request.form['lat']
     lon = request.form['lon']
-    response.set_cookie('lat', lat)
-    response.set_cookie('lon', lon)
+    exp = time.time() + 1 * 24 * 3600
+    response.set_cookie('lat', lat, expires=exp)
+    response.set_cookie('lon', lon, expires=exp)
 
     return response
 
 @app.route('/nearby')
 def nearby():
-    return render_template('nearby.html', 
-	   nearbyActive = 'current_page_item')
+    if cookieCheck():
+        return render_template('nearby.html', 
+    	   nearbyActive = 'current_page_item')
+    else:
+        return render_template('get-location.html',
+            redirect = 'nearby')
 
 @app.route('/walking-tour')
 def walkingTour():
-    if 'HTTP_COOKIE' in os.environ:
+    if cookieCheck():
         return render_template('walking-tour.html',
     	   walkingActive = 'current_page_item')
+    else:
+        return render_template('get-location.html',
+            redirect = 'walking-tour')
 
 @app.route('/photo-tour')
 def photoTour():
-    if 'HTTP_COOKIE' in os.environ:
+    if cookieCheck():
         return render_template('photo-tour.html', 
     	   photoActive = 'current_page_item')
+    else:
+        return render_template('get-location.html',
+            redirect = 'photo-tour')
 
 if __name__ == '__main__':
     # Bind to PORT if defined, otherwise default to 5000.

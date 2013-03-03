@@ -24,8 +24,12 @@
         '<input type="text" name="lon" value="' + lon + '" />' +
         '</form>');
       $('body').append(form);
+      if ('{{ redirect }}') {
+        $('form').append(
+          '<input type="text" name="redirect" value="{{ redirect }}" />'
+        );  
+      }
       $(form).submit();
-      //window.location.href = '/home?lat=' + lat + '&lon=' + lon;
     }
 
   // function showPosition(position)
