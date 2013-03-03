@@ -27,6 +27,7 @@ def getLocation():
 def storeLocation():
     from flask import make_response, redirect, url_for
     import time
+
     response = make_response(redirect('/'))
     if request.form['redirect']:
         response = make_response(redirect(request.form['redirect']))
@@ -39,7 +40,7 @@ def storeLocation():
     exp = time.time() + 1 * 24 * 3600
     response.set_cookie('lat', lat, expires=exp)
     response.set_cookie('lon', lon, expires=exp)
-
+    print response
     return response
 
 @app.route('/nearby')
