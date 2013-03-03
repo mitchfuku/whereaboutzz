@@ -96,7 +96,7 @@
 		background: url(/static/img/nav-opener.png) no-repeat left top;
 		top: .80em;
 		left: .80em;
-		text-indent: -999999em;
+		//text-indent: 999999em;
 	}
 
 		#mobileUI-site-nav-opener:active

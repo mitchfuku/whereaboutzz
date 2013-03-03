@@ -17,7 +17,7 @@
 		////////////////////////////////////////////////////////
 		mobileUI:						0,
 		mobileUI_hideAddressBar:		0,
-		mobileUI_openerText:			'=',
+		mobileUI_openerText:			'',
 		mobileUI_openerWidth:			60,
 		mobileUI_slideSpeed:			200,
 		mobileUI_theme:					'modern',
@@ -451,6 +451,7 @@
 					_nav = jQuery('<div id="mobileUI-site-nav"></div>');
 					_nav_inner.appendTo(_nav);
 					_opener = jQuery('<div id="mobileUI-site-nav-opener">' + _settings.mobileUI_openerText + '</div>');
+					console.log(_settings);
 				}
 				else
 				{
