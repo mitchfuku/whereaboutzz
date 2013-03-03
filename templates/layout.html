@@ -20,6 +20,8 @@
 			<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 			<link rel="stylesheet" href="{{ url_for('static', filename='css/style-desktop.css') }}" />
 		</noscript>
+		{% block head %}
+		{% endblock %}
 		<script src="{{ url_for('static', filename='css/5grid/jquery.js') }}"></script>
 		<!--needs to be specified without url_for because of html escaping -->
 		<script src="/static/css/5grid/init.js?use=mobile,desktop,1000px&amp;mobileUI=1&amp;mobileUI.theme=none'"></script>
@@ -27,28 +29,8 @@
 	</head>
 	<body class="homepage">
 		<!-- Header -->
-		<div id="header-wrapper">
-			<header id="header">
-				<div class="5grid-layout">
-					<div class="row">
-						<div class="5u" id="logo">
-							<h1><a href="/" class="mobileUI-site-name">Whereaboutzz</a></h1>
-							<p>Explore the world, simply.</p>
-						</div>
-						<div class="7u" id="menu">
-							<nav class="mobileUI-site-nav">
-								<ul>
-									<li class="{{ homeActive }}"><a href="/">Home</a></li>
-									<li class="{{ nearbyActive }}"><a href="/nearby">Nearby</a></li>
-									<li class="{{ walkingActive }}"><a href="/walking-tour">Walking Tour</a></li>
-									<li class="{{ photoActive }}"><a href="/photo-tour">Photo Tour</a></li>
-								</ul>
-							</nav>
-						</div>
-					</div>
-				</div>
-			</header>
-		</div>
+		{% include "header.html" %}
+		<!-- Main -->
 		<div id="wrapper" class="5grid-layout">
 			{% block content %}
 			{% endblock %}
@@ -111,12 +93,9 @@
 			</div>
 		</div>
 		<!-- Copyright -->
-		<div class="5grid-layout" id="copyright">
-			<div class="row">
-				<div class="12u">
-					<p>&copy; Your Site Name | Images: <a href="http://fotogrph.com/">Fotogrph</a> | Design: <a href="http://html5templates.com/">HTML5Templates.com</a></p>
-				</div>
-			</div>
-		</div>
+		{% include "footer.html" %}
+		<!-- Javascript -->
+		{% block javascript %}
+		{% endblock %}
 	</body>
 </html>
