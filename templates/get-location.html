@@ -18,7 +18,7 @@
     function getPosition(position) {
       lat = position.coords.latitude;
       lon = position.coords.longitude;
-      var url = '/home';
+      var url = '/set-location';
       var form = $('<form action="' + url + '" method="post" style="display:none">' +
         '<input type="text" name="lat" value="' + lat + '" />' +
         '<input type="text" name="lon" value="' + lon + '" />' +

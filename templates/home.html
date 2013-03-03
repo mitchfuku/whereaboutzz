@@ -17,9 +17,13 @@
 
 {% block javascript %}
 <script>
+	var executed = false;
 	$(document).ready(function() {
 		try {
-			showPosition({{ lat }}, {{ lon }});
+			if (!executed) {
+				showPosition({{ lat }}, {{ lon }});
+				executed = true;
+			}
 		} catch(e) {
 			console.log(e);
 		}
@@ -38,18 +42,18 @@
 			mapTypeControl:false,
 			navigationControlOptions:{style:google.maps.NavigationControlStyle.SMALL}
 		};
-		if ($("body").hasClass("is-mobile")) {
-			var latLonStr = lat + "," + lon;
-			var m = $(mapholder);
-			var url = "http://maps.google.com/maps/api/staticmap?markers=" + latLonStr + "&sensor=false&size=" + m.width() + "x" + m.height()+ "&zoom=" + parseInt(myOptions.zoom) + "&scale=2";
-			var image = $(mapholder).append (
-				"<img src='" + url + "'style='height'=" + m.height() + " width=" + m.width() + "/>"
-			);
-			$(image).css({"height" : m.height(), "width" : m.width()});
-		} else {
+		// if ($("body").hasClass("is-mobile")) {
+		// 	var latLonStr = lat + "," + lon;
+		// 	var m = $(mapholder);
+		// 	var url = "http://maps.google.com/maps/api/staticmap?markers=" + latLonStr + "&sensor=false&size=" + m.width() + "x" + m.height()+ "&zoom=" + parseInt(myOptions.zoom) + "&scale=2";
+		// 	var image = $(mapholder).append (
+		// 		"<img src='" + url + "'style='height'=" + m.height() + " width=" + m.width() + "/>"
+		// 	);
+		// 	$(image).css({"height" : m.height(), "width" : m.width()});
+		// } else {
 			var map=new google.maps.Map(mapholder,myOptions);
 			var marker=new google.maps.Marker({position:latlon,map:map,title:"You are here!"});
-		}
+		// }
 	}
 
 	function showError(error) {

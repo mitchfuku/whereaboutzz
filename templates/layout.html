@@ -20,12 +20,12 @@
 			<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 			<link rel="stylesheet" href="{{ url_for('static', filename='css/style-desktop.css') }}" />
 		</noscript>
-		{% block head %}
-		{% endblock %}
 		<script src="{{ url_for('static', filename='css/5grid/jquery.js') }}"></script>
 		<!--needs to be specified without url_for because of html escaping -->
 		<script src="/static/css/5grid/init.js?use=mobile,desktop,1000px&amp;mobileUI=1&amp;mobileUI.theme=none'"></script>
 		<!--[if IE 9]><link rel="stylesheet" href="css/style-ie9.css" /><![endif]-->
+		{% block head %}
+		{% endblock %}
 	</head>
 	<body class="homepage">
 		<!-- Header -->
@@ -35,7 +35,7 @@
 			{% block content %}
 			{% endblock %}
 			<!-- Marketing Content -->
-			<div id="marketing" class="row">
+			<!-- <div id="marketing" class="row">
 
 				<div class="3u">
 					<section class="box">
@@ -88,7 +88,7 @@
 						</ul>
 						<p><a href="#" class="button"><span>Read More</span></a></p>
 					</section>
-				</div>
+				</div> -->
 			
 			</div>
 		</div>

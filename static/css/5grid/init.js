@@ -451,7 +451,6 @@
 					_nav = jQuery('<div id="mobileUI-site-nav"></div>');
 					_nav_inner.appendTo(_nav);
 					_opener = jQuery('<div id="mobileUI-site-nav-opener">' + _settings.mobileUI_openerText + '</div>');
-					console.log(_settings);
 				}
 				else
 				{
