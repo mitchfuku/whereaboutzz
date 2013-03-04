@@ -53,6 +53,7 @@
 			zoom:15,
 			mapTypeId:google.maps.MapTypeId.ROADMAP,
 			mapTypeControl:false,
+			scrollwheel: false,
 			navigationControlOptions:mapControls,
 		};
 		
@@ -142,16 +143,32 @@
 
 	function positionCallback(map) {
 		var callback = function getPosition(position) {
-			console.log("here");
 			var lat = position.coords.latitude;
 			var lon = position.coords.longitude;
 			var latlon = new google.maps.LatLng(lat, lon);
+			var url = '/set-location';
+			var form = $('<form action="' + url + '" method="post" style="display:none">' +
+				'<input type="text" name="lat" value="' + lat + '" />' +
+				'<input type="text" name="lon" value="' + lon + '" />' +
+				'</form>');
+			$('body').append(form);
 
-			marker = new google.maps.Marker({animation:google.maps.Animation.DROP,position:latlon,map:map,title:"You are here!"});
-			map.setCenter(latlon);
-			//Add refresh to city-state-label
-			var geocoder = new google.maps.Geocoder();
-			geocoder.geocode( { 'latLng': latlon }, geocoderCallback(map));
+			$(form).submit(function() {
+				$.ajax({
+		            type: "POST",
+		            url: $(this).attr('action'),
+		            data: $(this).serialize(),
+		            success: function(){
+						marker = new google.maps.Marker({animation:google.maps.Animation.DROP,position:latlon,map:map,title:"You are here!"});
+						map.setCenter(latlon);
+						//Add refresh to city-state-label
+						var geocoder = new google.maps.Geocoder();
+						geocoder.geocode( { 'latLng': latlon }, geocoderCallback(map));
+					}
+		        });
+				return false;
+			});
+			$(form).submit();
 	    }
 
 	    return callback;
