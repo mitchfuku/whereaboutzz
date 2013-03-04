@@ -8,11 +8,9 @@
     var x=document.getElementById("map-container");
     getLocation();
     function getLocation() {
-      if (navigator.geolocation)
-      {
-      navigator.geolocation.getCurrentPosition(getPosition,showError);
-      }
-      else{x.innerHTML="Geolocation is not supported by this browser.";}
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(getPosition,showError);
+      } else{x.innerHTML="Geolocation is not supported by this browser.";}
     }
 
     function getPosition(position) {

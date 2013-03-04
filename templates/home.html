@@ -1,7 +1,10 @@
 {% extends "layout.html" %}
 
 {% block head %}
+{{ super() }}
 <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+<script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 {% endblock head %}
 
 {% block content %}
@@ -18,6 +21,8 @@
 {% block javascript %}
 <script>
 	var executed = false;
+	var mapholder = document.getElementById('map-container');
+	var marker;
 	$(document).ready(function() {
 		try {
 			if (!executed) {
@@ -30,18 +35,27 @@
 	});
 
 	function showPosition(lat, lon) {
-		console.log("called");
-		latlon = new google.maps.LatLng(lat, lon);
-		mapholder = document.getElementById('map-container');
-		mapholder.style.height='250px';
+		var isMobile = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/);
+		if (document.documentElement.clientWidth < 500) isMobile = true;
+		var latlon = new google.maps.LatLng(lat, lon);
+		//Default values for mobile
+		var mapControls = {style:google.maps.NavigationControlStyle.SMALL};
+
+		if (isMobile) {
+			mapholder.style.height='250px';
+		} else {
+			mapControls = {style:google.maps.NavigationControlStyle.LARGE};
+			mapholder.style.height='400px';
+		}
 		mapholder.style.width='100%';
 		var myOptions = {
 			center:latlon,
 			zoom:15,
 			mapTypeId:google.maps.MapTypeId.ROADMAP,
 			mapTypeControl:false,
-			navigationControlOptions:{style:google.maps.NavigationControlStyle.SMALL}
+			navigationControlOptions:mapControls,
 		};
+		
 		// if ($("body").hasClass("is-mobile")) {
 		// 	var latLonStr = lat + "," + lon;
 		// 	var m = $(mapholder);
@@ -51,12 +65,102 @@
 		// 	);
 		// 	$(image).css({"height" : m.height(), "width" : m.width()});
 		// } else {
-			var map=new google.maps.Map(mapholder,myOptions);
-			var marker=new google.maps.Marker({position:latlon,map:map,title:"You are here!"});
+			var map = new google.maps.Map(mapholder,myOptions);
+			marker = new google.maps.Marker({position:latlon,map:map,title:"You are here!"});
+			var geocoder = new google.maps.Geocoder();
+			geocoder.geocode( { 'latLng': latlon }, geocoderCallback(map));
+			addRefreshButton(map);
 		// }
 	}
 
+	function geocoderCallback(map) {
+		var callback = function addNameOfLocation(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				var cityStr = "";
+				var stateStr = "";
+				$.each(results[0].address_components, function (i, address_component) {
+					$.each(address_component.types, function (i, type) {
+						if (type == "locality") cityStr = address_component.long_name;
+						if (type == "administrative_area_level_1") stateStr = address_component.short_name;
+					});
+				});
+				var oldLabel = $("#map-container").find('.city-state-label');
+				if (oldLabel) {
+					oldLabel.remove();
+				}
+				var myTitle = document.createElement('h1');
+				$(myTitle).css({
+					"color": "black",
+					"font-size": 20,
+					"font-family": "'Oswald', sans-serif",
+					"margin": 10
+				});
+				$(myTitle).addClass('city-state-label');
+				myTitle.innerHTML = cityStr + ", " + stateStr;
+
+				map.controls[google.maps.ControlPosition.TOP_LEFT].push(myTitle);
+			} 
+		}
+		return callback;
+	}
+
+	function addRefreshButton(map) {
+		var myButton = document.createElement('button');
+
+		myButton.innerHTML = "Refresh";
+		$(myButton).button({
+			icons: {
+				primary: "ui-icon-arrowrefresh-1-s"
+			}
+		});
+		$(myButton).css({
+			"font-size": 14,
+			"font-family": "'Oswald', sans-serif"
+		});
+		$(myButton).click(function() {
+			if ($(this).hasClass('ui-state-disabled')) {
+				alert("You can't refresh your location that quickly!");
+			} else {
+				marker.setMap(null);
+				$(this).removeClass('ui-state-hover');
+				$(this).addClass('ui-state-disabled');
+				var that = this;
+				var duration = 10000;
+		        setTimeout(function() {
+		            $(that).removeClass("ui-state-disabled");
+		            $(that).addClass('ui-state-default');
+		        }, duration);
+				if (navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(positionCallback(map),showError);
+				} else {
+					alert("Geolocation is not supported by this browser.");
+				}
+			}
+		});
+		map.controls[google.maps.ControlPosition.TOP_RIGHT].push(myButton);
+	}
+
+	function positionCallback(map) {
+		var callback = function getPosition(position) {
+			console.log("here");
+			var lat = position.coords.latitude;
+			var lon = position.coords.longitude;
+			var latlon = new google.maps.LatLng(lat, lon);
+
+			marker = new google.maps.Marker({animation:google.maps.Animation.DROP,position:latlon,map:map,title:"You are here!"});
+			map.setCenter(latlon);
+			//Add refresh to city-state-label
+			var geocoder = new google.maps.Geocoder();
+			geocoder.geocode( { 'latLng': latlon }, geocoderCallback(map));
+	    }
+
+	    return callback;
+	}
+
+	
+
 	function showError(error) {
+		console.log(error);
 		switch(error.code) {
 			case error.PERMISSION_DENIED:
 			x.innerHTML="User denied the request for Geolocation."
