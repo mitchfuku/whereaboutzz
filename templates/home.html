@@ -68,43 +68,29 @@
 		// } else {
 			var map = new google.maps.Map(mapholder,myOptions);
 			marker = new google.maps.Marker({position:latlon,map:map,title:"You are here!"});
-			var geocoder = new google.maps.Geocoder();
-			geocoder.geocode( { 'latLng': latlon }, geocoderCallback(map));
+			addNameOfLocation(map, "{{ city }}", "{{ state_short }}");
 			addRefreshButton(map);
 		// }
 	}
 
-	function geocoderCallback(map) {
-		var callback = function addNameOfLocation(results, status) {
-			if (status == google.maps.GeocoderStatus.OK) {
-				var cityStr = "";
-				var stateStr = "";
-				$.each(results[0].address_components, function (i, address_component) {
-					$.each(address_component.types, function (i, type) {
-						if (type == "locality") cityStr = address_component.long_name;
-						if (type == "administrative_area_level_1") stateStr = address_component.short_name;
-					});
-				});
-				var oldLabel = $("#map-container").find('.city-state-label');
-				if (oldLabel) {
-					oldLabel.remove();
-				}
-				var myTitle = document.createElement('h1');
-				$(myTitle).css({
-					"color": "black",
-					"font-size": 20,
-					"font-family": "'Oswald', sans-serif",
-					"margin": 10
-				});
-				$(myTitle).addClass('city-state-label');
-				myTitle.innerHTML = cityStr + ", " + stateStr;
-
-				map.controls[google.maps.ControlPosition.TOP_LEFT].push(myTitle);
-			} 
+	function addNameOfLocation(map, city, state) {
+		var oldLabel = $("#map-container").find('.city-state-label');
+		if (oldLabel) {
+			oldLabel.remove();
 		}
-		return callback;
-	}
+		var myTitle = document.createElement('h1');
+		$(myTitle).css({
+			"color": "black",
+			"font-size": 20,
+			"font-family": "'Oswald', sans-serif",
+			"margin": 10
+		});
+		$(myTitle).addClass('city-state-label');
+		myTitle.innerHTML =  city + ", " + state;
 
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(myTitle);
+	}
+	
 	function addRefreshButton(map) {
 		var myButton = document.createElement('button');
 
