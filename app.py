@@ -76,8 +76,8 @@ def getLocation():
         queryStr = city + ', ' + state_long
         jsonContent = getWikipediaDataFromSearchTerm(queryStr)
         #jsonContent = getWikipediaDataFromSearchTerm('San Jose, California')
-        print jsonContent
-        sys.stdout.flush()
+        # print jsonContent
+        # sys.stdout.flush()
 
         return render_template('home.html', 
             homeActive = 'current_page_item',
