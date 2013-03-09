@@ -1,6 +1,6 @@
 import os
-from flask import Flask, render_template, request, Response, session, escape
-import os, json, urllib2, sys
+from flask import Flask, render_template, request, Response, session, escape, jsonify
+import os, urllib2, sys, json
 
 app = Flask(__name__)
 sys.path.insert(0, "python")
@@ -12,22 +12,49 @@ def sessionCheck():
 
 #@app.route('/get-wikipedia', methods=['GET'])
 def getWikipediaDataFromSearchTerm(term):
-    import wikipedia
-    import wiki2plain
+    import wikipedia, wiki2plain, urllib, json
+    from bs4 import BeautifulSoup
 
-    lang = 'en'
-    wiki = wikipedia.Wikipedia(lang)
-    content = None
-    try:
-        raw = wiki.article(term)
-    except:
-        raw = None
+    article = urllib.quote(term)
+    opener = urllib2.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')] #wikipedia needs this
 
-    if raw:
-        wiki2plain = wiki2plain.Wiki2Plain(raw)
-        content = wiki2plain.text
+    wikiurl = "http://en.wikipedia.org/wiki/" + article
+    resource = opener.open(wikiurl)
+    data = resource.read()
+    resource.close()
 
-    print content
+    soup = BeautifulSoup(data)
+    body = soup.find('div',id="bodyContent").p
+    imageurl = "http://" + str(soup.find('img')['src'])[2:] #remove the leading // on the url
+
+    wiki2plain = wiki2plain.Wiki2Plain(str(body))
+    content = str(wiki2plain.text).decode('utf8')
+
+    # text_file = open("Output.txt", "w")
+    # text_file.write(str(content))
+    # text_file.close()
+    # print imageurl
+    return dict(content=content, imageurl=imageurl, wikiurl=wikiurl)
+
+    # import wikipedia, wiki2plain
+    # lang = 'en'
+    # wiki = wikipedia.Wikipedia(lang)
+
+    # try:
+    #     raw = wiki.article(term)
+    # except:
+    #     raw = None
+
+    # if raw:
+    #     wiki2plain = wiki2plain.Wiki2Plain(raw)
+    #     content = wiki2plain.text
+    #     # content = content.split('}}')[1].split('\n');
+
+    # text_file = open("Output.txt", "w")
+    # text_file.write(str(content))
+    # text_file.close()
+    # sys.stdout.flush()
 
 def get_geonames(lat, lng, types):
     url = 'http://maps.googleapis.com/maps/api/geocode/json' + \
@@ -47,7 +74,10 @@ def getLocation():
         state_long = str(escape(session['city_long']))
         state_short = str(escape(session['city_short']))
         queryStr = city + ', ' + state_long
-        content = getWikipediaDataFromSearchTerm(queryStr)
+        jsonContent = getWikipediaDataFromSearchTerm(queryStr)
+        #jsonContent = getWikipediaDataFromSearchTerm('San Jose, California')
+        print jsonContent
+        sys.stdout.flush()
 
         return render_template('home.html', 
             homeActive = 'current_page_item',
@@ -56,7 +86,7 @@ def getLocation():
             city = city,
             state_long = state_long,
             state_short = state_short,
-            content = content)
+            content = jsonContent)
     else:
         return render_template('get-location.html')
 

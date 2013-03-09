@@ -16,6 +16,19 @@
 		</section>
 	</div>
 </div>
+<div id="content" class="row">
+	<div class="3u">
+		<section>
+			<img src='{{ content.imageurl }}' />
+		</section>
+	</div>
+	<div class="9u">
+		<section>
+			<p>{{ content.content }} <a href='{{ content.wikiurl }}' target="_blank">More...</a></p>
+		</section>
+	</div>
+</div>
+
 {% endblock content %}
 
 {% block javascript %}
@@ -34,15 +47,19 @@
 		}
 	});
 
+	var isMobile = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/);
+	if (isMobile) {
+		$('#content').find('.3u').remove();
+	}
+
 	function showPosition(lat, lon) {
-		var isMobile = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/);
 		if (document.documentElement.clientWidth < 500) isMobile = true;
 		var latlon = new google.maps.LatLng(lat, lon);
 		//Default values for mobile
 		var mapControls = {style:google.maps.NavigationControlStyle.SMALL};
 
 		if (isMobile) {
-			mapholder.style.height='250px';
+			mapholder.style.height='230px';
 		} else {
 			mapControls = {style:google.maps.NavigationControlStyle.LARGE};
 			mapholder.style.height='400px';
@@ -90,7 +107,7 @@
 
 		map.controls[google.maps.ControlPosition.TOP_LEFT].push(myTitle);
 	}
-	
+
 	function addRefreshButton(map) {
 		var myButton = document.createElement('button');
 

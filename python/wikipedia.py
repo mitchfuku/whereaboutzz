@@ -63,7 +63,7 @@ class Wikipedia:
         search = parsed['query']['search']
         
         results = []
-        
+
         if search:
             for article in search:
                 title = article['title'].strip()
