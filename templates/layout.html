@@ -23,6 +23,19 @@
 		<script src="{{ url_for('static', filename='css/5grid/jquery.js') }}"></script>
 		<!--needs to be specified without url_for because of html escaping -->
 		<script src="/static/css/5grid/init.js?use=mobile,desktop,1000px&amp;mobileUI=1&amp;mobileUI.theme=none'"></script>
+		<!-- Google Analytics -->
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-39188280-1']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		</script>
 		{% block head %}
 		{% endblock %}
 		<!--[if IE 9]><link rel="stylesheet" href="css/style-ie9.css" /><![endif]-->
