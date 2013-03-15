@@ -1,18 +1,39 @@
 import os
 from flask import Flask, render_template, request, Response, session, escape, jsonify
-import os, urllib2, sys, json
+import os, urllib2, sys, json, urllib
 
 app = Flask(__name__)
 sys.path.insert(0, "python")
+
+foursquare_client_id = "FBZHIPP1BP5UYHHDOBS1LM3E5HQS1WUFCY4XFI5WZOE45TPD"
+foursquare_client_secret = "WIAOI4PMNQUYNSQR4XGDYULWU3WTBFMC2XHMVZ4N1FXIZNOF"
 
 def sessionCheck():
     if 'lat' in session and 'locality' in session:
         return True
     return False
 
+def getFoursquareVenuesNearby(lat, lon):
+    # https://api.foursquare.com/v2/venues/search?query=ise%20sushi&ll=40.7143528%2C-74.00597309999999
+    latlon = urllib.quote(str(lat) + "," + str(lon))
+    opener = urllib2.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')] #wikipedia needs this
+
+    url = "https://api.foursquare.com/v2/venues/explore?v=20130315&client_id=" + foursquare_client_id + "&client_secret=" + foursquare_client_secret + "&intent=browse&ll=" + latlon
+    resource = opener.open(url)
+    data = resource.read()
+    resource.close()
+    data = str(data).decode('utf8')
+    print url
+    sys.stdout.flush();
+
+    return json.loads(data)
+
+
+
 #@app.route('/get-wikipedia', methods=['GET'])
 def getWikipediaDataFromSearchTerm(term):
-    import wikipedia, wiki2plain, urllib, json
+    import wikipedia, wiki2plain
     from bs4 import BeautifulSoup
 
     article = urllib.quote(term)
@@ -75,7 +96,7 @@ def getLocation():
         state_short = str(escape(session['city_short']))
         queryStr = city + ', ' + state_long
         jsonContent = getWikipediaDataFromSearchTerm(queryStr)
-        #jsonContent = getWikipediaDataFromSearchTerm('San Jose, California')
+        # jsonContent = getWikipediaDataFromSearchTerm('San Jose, California')
         # print jsonContent
         # sys.stdout.flush()
 
@@ -116,8 +137,15 @@ def storeLocation():
 @app.route('/nearby')
 def nearby():
     if sessionCheck():
-        return render_template('nearby.html', 
-    	   nearbyActive = 'current_page_item')
+        lat = float(escape(session['lat']))
+        lon = float(escape(session['lon']))
+        data = getFoursquareVenuesNearby(lat, lon)
+        print data
+        return render_template('nearby.html',
+            data = data,
+            lat = lat,
+            lon = lon,
+            nearbyActive = 'current_page_item')
     else:
         return render_template('get-location.html',
             redirect = 'nearby')

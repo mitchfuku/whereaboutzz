@@ -16,6 +16,7 @@
 		</section>
 	</div>
 </div>
+{% block extracontent %}
 <div id="content" class="row">
 	<div class="3u">
 		<section>
@@ -28,7 +29,7 @@
 		</section>
 	</div>
 </div>
-
+{% endblock extracontent%}
 {% endblock content %}
 
 {% block javascript %}
@@ -36,6 +37,7 @@
 	var executed = false;
 	var mapholder = document.getElementById('map-container');
 	var marker;
+
 	$(document).ready(function() {
 		try {
 			if (!executed) {

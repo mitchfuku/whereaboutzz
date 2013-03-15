@@ -1,17 +1,19 @@
-{% extends "layout.html" %}
-{% block content %}
+{% extends "home.html" %}
+{% block extracontent %}
+<div class="row">
+	<div class="12u">
+		<section>
+			Nearby
+		</section>
+		{% for data in data.response.groups[0]['items'][0]['venue']['location'] %}
 
-<div id="featured" class="5grid-layout">
-	<div class="titlebg">
-		<h2>Nearby</h2>
-	</div>
-	<div class="row">
-		<div class="12u">
-			<section>
-				Nearby
-			</section>
-		</div>
+		{{ data }}<br />
+
+		{% endfor %}
 	</div>
 </div>
+<script>
+	console.log({{data|tojson|safe}});
+</script>
 
-{% endblock %}
+{% endblock extracontent %}
