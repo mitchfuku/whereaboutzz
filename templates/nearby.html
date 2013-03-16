@@ -1,19 +1,123 @@
 {% extends "home.html" %}
 {% block extracontent %}
-<div class="row">
-	<div class="12u">
-		<section>
-			Nearby
-		</section>
-		{% for data in data.response.groups[0]['items'][0]['venue']['location'] %}
-
-		{{ data }}<br />
-
-		{% endfor %}
+<div id="content" class="row">
+	<div class="row">
+		<div class="12u">
+			<section>
+				<a href="https://www.foursquare.com"><img src="/static/img/pbfoursquare.png" class="foursquare-image"/></a>
+			</section>
+		</div>
+	</div>
+<!-- 	<div id="marketing" class="row"></div> -->
+	<div id="food" class="fs-content">
+		<div id="marketing" class="row">
+			<div class="12u">
+				<section class="box">
+					<h2>Food</h2>
+				</section>
+			</div>
+		</div>
+	</div>
+	<div id="sights" class="fs-content">
+		<div id="marketing" class="row">
+			<div class="12u">
+				<section class="box">
+					<h2>Sights</h2>
+				</section>
+			</div>
+		</div>
+	</div>
+	<div id="outdoors" class="fs-content">
+		<div id="marketing" class="row">
+			<div class="12u">
+				<section class="box">
+					<h2>Outdoors</h2>
+				</section>
+			</div>
+		</div>
+	</div>
+	<div id="arts" class="fs-content">
+		<div id="marketing" class="row">
+			<div class="12u">
+				<section class="box">
+					<h2>Arts</h2>
+				</section>
+			</div>
+		</div>
 	</div>
 </div>
-<script>
-	console.log({{data|tojson|safe}});
-</script>
-
 {% endblock extracontent %}
+{% block javascript %}
+{{ super() }}
+<script>
+	var data = {{data|tojson|safe}};
+	var content = $("#content");
+	// var venues = data.response.groups[0].items;
+	// for (var i = 0; i < venues.length; i++) {
+	// 	var venue = venues[i].venue;
+	// 	console.log(venue.name);
+	// }
+	var nearbyExecuted = false
+	$(document).ready(function() {
+		try {
+			if (!nearbyExecuted) {
+				parseData(data);
+				nearbyExecuted = true;
+			}
+		} catch(e) {
+			console.log(e);
+		}
+	});
+	function parseData(data) {
+		var foodMarkup = $("#food");
+		var sightsMarkup = $("#sights");
+		var outdoorsMarkup = $("#outdoors");
+		var artsMarkup = $("#arts");
+		var food = data.food.response.groups[0].items;
+		var sights = data.sights.response.groups[0].items;
+		var outdoors = data.outdoors.response.groups[0].items;
+		var arts = data.arts.response.groups[0].items;
+		addVenueToMarkup(food, foodMarkup);
+		console.log(food);
+	}
+
+	function metersToMiles(meters) {
+		var mi = meters * 0.000621371;
+		return mi.toFixed(1);
+	}
+
+	function addVenueToMarkup(data, markup) {
+		var originalDiv = markup;
+		for (var i = 0; i < 8; i++) {
+			var venue = data[i].venue;
+			var appendNewContainer = false;
+			//If 4 venues already added
+			if (i % 4 == 0) {
+				//append a new container and append to original div specified
+				markup = originalDiv;
+				appendNewContainer = true;
+			} else {
+				//if this is the 5th div to append, get the second row
+				if (i > 4) markup = originalDiv.children(':first').next().next();
+				else markup = originalDiv.children(':first').next();
+			}
+			var markupStr = 
+			'<div class="3u"> \
+				<section class="box"> \
+					<h3>' + venue.name + '</h3> \
+					<p class="subtitle">' + metersToMiles(venue.location.distance) + ' miles away</p> \
+					<ul class="style4"> \
+						<li class="first">' + venue.contact.formattedPhone + '</li> \
+						<li>' + venue.location.address + '<br>' + venue.location.city + ', ' + venue.location.state +'</li> \
+					</ul> \
+				</section> \
+			</div>';
+			if (appendNewContainer) {
+				markupStr = '<div id="marketing" class="row">' + markupStr + '</div>';
+			}
+			markup.append(markupStr);
+		}
+	}
+
+</script>
+{% endblock javascript %}

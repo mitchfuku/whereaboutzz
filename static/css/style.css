@@ -29,9 +29,14 @@
 	
 	h1, h2, h3 {
 		padding: 0 0 1em 0;
-		font-family: 'Open Sans', sans-serif;
+		font-family: 'Archivo Narrow', sans-serif;
 		font-weight: 400;
 		color: #353535;
+	}
+
+	h3
+	{
+		font-size:1.50em;
 	}
 	
 	h2
@@ -193,8 +198,7 @@
 	}
 	
 	ul.style4 li {
-		padding: 1.50em 0em 1.50em 0em;
-		border-top: 1px solid #E2E2E2;
+		padding: 0.75em 0em 0.25em 0em;
 	}
 	
 	ul.style4 a {
@@ -212,6 +216,11 @@
 		font-size: 1.10em;
 		font-weight: 700;
 		color: #333;
+	}
+
+	ul.style4 p
+	{
+		font-size:0.9em;
 	}
 	
 	
@@ -338,15 +347,15 @@
 	#marketing
 	{
 		overflow: hidden;
-		padding: 2em 0em 0em 0em;
+		//padding: 2em 0em 0em 0em;
 	}
 
-	#marketing h2
+	#marketing h2, h3
 	{
 		margin: 0;
 		padding: 0;
 		text-transform: uppercase;
-		font-size: 1.75em;
+		font-size: 1em;
 		font-weight: 700;
 		color: #C6250A;
 	}
@@ -357,7 +366,7 @@
 		padding: 0 0 1em 0;
 		border-bottom: 1px solid #E2E2E2;
 		text-transform: uppercase;
-		font-size: 1.25em;
+		font-size: 0.85em;
 		font-weight: 400;
 		color: #3D3D3D;
 	}
@@ -434,4 +443,14 @@
 	#copyright a:hover
 	{
 		text-decoration: none;
-}
+	}
+
+/* Extra */
+
+	.foursquare-image
+	{
+		width:280px !important;
+		display: block;
+    	margin-left: auto;
+    	margin-right: auto 
+	}

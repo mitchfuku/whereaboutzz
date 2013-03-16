@@ -9,14 +9,14 @@
     getLocation();
     function getLocation() {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(getPosition,showError);
+        navigator.geolocation.getCurrentPosition(sendPositionToDB,showError);
       } else{x.innerHTML="Geolocation is not supported by this browser.";}
     }
 
-    function getPosition(position) {
+    function sendPositionToDB(position) {
       lat = position.coords.latitude;
       lon = position.coords.longitude;
-      var url = '/set-location';
+      var url = '/user-location';
       var form = $('<form action="' + url + '" method="post" style="display:none">' +
         '<input type="text" name="lat" value="' + lat + '" />' +
         '<input type="text" name="lon" value="' + lon + '" />' +

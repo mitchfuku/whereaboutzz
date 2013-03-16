@@ -25,6 +25,7 @@
 	</div>
 	<div class="9u">
 		<section>
+			<h3>Powered by Wikipedia</h3>
 			<p>{{ content.content }} <a href='{{ content.wikiurl }}' target="_blank">More...</a></p>
 		</section>
 	</div>
@@ -146,12 +147,18 @@
 		map.controls[google.maps.ControlPosition.TOP_RIGHT].push(myButton);
 	}
 
+	//TODO IMPLEMENT THIS
+	function geocoderCallback(map, results) {
+		console.log(results);
+		//addNameOfLocation(map, city, state);
+	}
+
 	function positionCallback(map) {
 		var callback = function getPosition(position) {
 			var lat = position.coords.latitude;
 			var lon = position.coords.longitude;
 			var latlon = new google.maps.LatLng(lat, lon);
-			var url = '/set-location';
+			var url = '/user-location';
 			var form = $('<form action="' + url + '" method="post" style="display:none">' +
 				'<input type="text" name="lat" value="' + lat + '" />' +
 				'<input type="text" name="lon" value="' + lon + '" />' +
@@ -168,7 +175,9 @@
 						map.setCenter(latlon);
 						//Add refresh to city-state-label
 						var geocoder = new google.maps.Geocoder();
-						geocoder.geocode( { 'latLng': latlon }, geocoderCallback(map));
+						geocoder.geocode( { 'latLng': latlon }, function(result, status) {
+						     geocoderCallback(map, result);
+						 });
 					}
 		        });
 				return false;
