@@ -78,6 +78,9 @@
 		var outdoors = data.outdoors.response.groups[0].items;
 		var arts = data.arts.response.groups[0].items;
 		addVenueToMarkup(food, foodMarkup);
+		addVenueToMarkup(sights, sightsMarkup);
+		addVenueToMarkup(outdoors, outdoorsMarkup);
+		addVenueToMarkup(arts, artsMarkup);
 		console.log(food);
 	}
 
@@ -101,13 +104,15 @@
 				if (i > 4) markup = originalDiv.children(':first').next().next();
 				else markup = originalDiv.children(':first').next();
 			}
+			var phone = venue.contact.formattedPhone;
+			if (phone == undefined) phone = "No listing";
 			var markupStr = 
 			'<div class="3u"> \
 				<section class="box"> \
 					<h3>' + venue.name + '</h3> \
 					<p class="subtitle">' + metersToMiles(venue.location.distance) + ' miles away</p> \
 					<ul class="style4"> \
-						<li class="first">' + venue.contact.formattedPhone + '</li> \
+						<li class="first">' + phone + '</li> \
 						<li>' + venue.location.address + '<br>' + venue.location.city + ', ' + venue.location.state +'</li> \
 					</ul> \
 				</section> \
