@@ -81,7 +81,6 @@
 		addVenueToMarkup(sights, sightsMarkup);
 		addVenueToMarkup(outdoors, outdoorsMarkup);
 		addVenueToMarkup(arts, artsMarkup);
-		console.log(food);
 	}
 
 	function metersToMiles(meters) {
@@ -91,6 +90,8 @@
 
 	function addVenueToMarkup(data, markup) {
 		var originalDiv = markup;
+		data.sort(function(a,b) { return parseFloat(b.venue.rating) - parseFloat(a.venue.rating)} );
+		console.log(data);
 		for (var i = 0; i < 8; i++) {
 			var venue = data[i].venue;
 			var appendNewContainer = false;
