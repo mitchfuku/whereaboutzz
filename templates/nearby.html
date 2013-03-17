@@ -77,18 +77,50 @@
 		var sights = data.sights.response.groups[0].items;
 		var outdoors = data.outdoors.response.groups[0].items;
 		var arts = data.arts.response.groups[0].items;
-		addVenueToMarkup(food, foodMarkup);
-		addVenueToMarkup(sights, sightsMarkup);
-		addVenueToMarkup(outdoors, outdoorsMarkup);
-		addVenueToMarkup(arts, artsMarkup);
+		addVenueToMarkup(food, foodMarkup, "food");
+		addVenueToMarkup(sights, sightsMarkup, "sights");
+		addVenueToMarkup(outdoors, outdoorsMarkup, "outdoors");
+		addVenueToMarkup(arts, artsMarkup, "arts");
+	}
+
+	function getContentString(venue) {
+		var phone = venue.contact.formattedPhone;
+		if (phone == undefined) phone = "No phone number";
+		var rating = venue.rating;
+		if (rating == undefined) rating = '<li class="first">No Rating</li>';
+		else rating = '<li class="first">Rating: ' + rating + '/10</li>';
+		return '<h3>' + venue.name + '</h3> \
+				<p class="subtitle">' + metersToMiles(venue.location.distance) + ' miles away</p> \
+				<ul class="style4">'
+					+ rating +
+					'<li>' + phone + '<br>' + venue.location.address + '<br>' + venue.location.city + ', ' + venue.location.state +'</li> \
+				</ul>';
+	}
+
+	function addPointsToMap(map, lat, lon, venue, type) {
+		var latlon = new google.maps.LatLng(lat, lon);
+		var marker = new google.maps.Marker({position:latlon,map:map,title:venue.name});
+		var iconFile = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+		if (type == "food") iconFile = '/static/img/restaurant.png';
+		else if (type == "sights") iconFile = '/static/img/sights.png';
+		else if (type == "outdoors") iconFile = '/static/img/outdoors.png';
+		else if (type == "arts") iconFile = '/static/img/arts.png';
+		marker.setIcon(iconFile);
+		var contentString = getContentString(venue);
+		var infowindow = new google.maps.InfoWindow({
+		    content: contentString
+		});
+		google.maps.event.addListener(marker, 'click', function() {
+			infowindow.open(map,marker);
+		});
 	}
 
 	function metersToMiles(meters) {
 		var mi = meters * 0.000621371;
-		return mi.toFixed(1);
+		return mi.toFixed(2);
 	}
 
-	function addVenueToMarkup(data, markup) {
+	function addVenueToMarkup(data, markup, type) {
 		var originalDiv = markup;
 		data.sort(function(a,b) { return parseFloat(b.venue.rating) - parseFloat(a.venue.rating)} );
 		console.log(data);
@@ -105,23 +137,17 @@
 				if (i > 4) markup = originalDiv.children(':first').next().next();
 				else markup = originalDiv.children(':first').next();
 			}
-			var phone = venue.contact.formattedPhone;
-			if (phone == undefined) phone = "No listing";
 			var markupStr = 
 			'<div class="3u"> \
-				<section class="box"> \
-					<h3>' + venue.name + '</h3> \
-					<p class="subtitle">' + metersToMiles(venue.location.distance) + ' miles away</p> \
-					<ul class="style4"> \
-						<li class="first">' + phone + '</li> \
-						<li>' + venue.location.address + '<br>' + venue.location.city + ', ' + venue.location.state +'</li> \
-					</ul> \
-				</section> \
+				<section class="box">'
+					+ getContentString(venue) + 
+				'</section> \
 			</div>';
 			if (appendNewContainer) {
 				markupStr = '<div id="marketing" class="row">' + markupStr + '</div>';
 			}
 			markup.append(markupStr);
+			addPointsToMap(map, venue.location.lat, venue.location.lng, venue, type);
 		}
 	}
 

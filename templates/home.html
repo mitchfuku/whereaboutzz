@@ -38,6 +38,7 @@
 	var executed = false;
 	var mapholder = document.getElementById('map-container');
 	var marker;
+	var map;
 
 	$(document).ready(function() {
 		try {
@@ -86,8 +87,8 @@
 		// 	);
 		// 	$(image).css({"height" : m.height(), "width" : m.width()});
 		// } else {
-			var map = new google.maps.Map(mapholder,myOptions);
-			marker = new google.maps.Marker({position:latlon,map:map,title:"You are here!"});
+			map = new google.maps.Map(mapholder,myOptions);
+			marker = new google.maps.Marker({position:latlon,map:map,title:"You are here"});
 			addNameOfLocation(map, "{{ city }}", "{{ state_short }}");
 			addRefreshButton(map);
 		// }
