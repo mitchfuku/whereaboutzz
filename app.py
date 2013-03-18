@@ -144,6 +144,7 @@ def getLocation():
 def storeLocation():
     from flask import make_response, redirect, url_for
     import time
+    from datetime import timedelta
     if request.method == 'POST':
         response = make_response(redirect('/'))
         if 'redirect' in request.form:
@@ -162,6 +163,9 @@ def storeLocation():
 
         session['lat'] = lat
         session['lon'] = lon
+        #set the session to expire
+        session.permanent = True
+        app.permanent_session_lifetime = timedelta(hours=1)
         return response
     if request.method == 'GET':
         data = dict(
