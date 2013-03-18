@@ -1,14 +1,6 @@
 {% extends "home.html" %}
 {% block extracontent %}
 <div id="content" class="row">
-	<div class="row">
-		<div class="12u">
-			<section>
-				<a href="https://www.foursquare.com"><img src="https://playfoursquare.s3.amazonaws.com/press/logo/poweredByFoursquare_gray.png" class="foursquare-image" target="_blank"/></a>
-			</section>
-		</div>
-	</div>
-<!-- 	<div id="marketing" class="row"></div> -->
 	<div id="food" class="fs-content">
 		<div id="marketing" class="row">
 			<div class="12u">
@@ -45,6 +37,13 @@
 			</div>
 		</div>
 	</div>
+	<div class="row">
+		<div class="12u">
+			<section>
+				<a href="https://www.foursquare.com"><img src="https://playfoursquare.s3.amazonaws.com/press/logo/poweredByFoursquare_gray.png" class="foursquare-image" target="_blank"/></a>
+			</section>
+		</div>
+	</div>
 </div>
 {% endblock extracontent %}
 {% block javascript %}
@@ -52,11 +51,8 @@
 <script>
 	var data = {{data|tojson|safe}};
 	var content = $("#content");
-	// var venues = data.response.groups[0].items;
-	// for (var i = 0; i < venues.length; i++) {
-	// 	var venue = venues[i].venue;
-	// 	console.log(venue.name);
-	// }
+	var locationMarkerArray = [];
+
 	var nearbyExecuted = false
 	$(document).ready(function() {
 		try {
@@ -77,10 +73,13 @@
 		var sights = data.sights.response.groups[0].items;
 		var outdoors = data.outdoors.response.groups[0].items;
 		var arts = data.arts.response.groups[0].items;
-		addVenueToMarkup(food, foodMarkup, "food");
-		addVenueToMarkup(sights, sightsMarkup, "sights");
-		addVenueToMarkup(outdoors, outdoorsMarkup, "outdoors");
-		addVenueToMarkup(arts, artsMarkup, "arts");
+		var fullBounds = new google.maps.LatLngBounds();
+		addVenueToMarkup(food, foodMarkup, "food", map, fullBounds);
+		addVenueToMarkup(sights, sightsMarkup, "sights", map, fullBounds);
+		addVenueToMarkup(outdoors, outdoorsMarkup, "outdoors", map, fullBounds);
+		addVenueToMarkup(arts, artsMarkup, "arts", map, fullBounds);
+		//Fit all the points on the initial map zoom
+		map.fitBounds(fullBounds);
 	}
 
 	function getContentString(venue) {
@@ -113,6 +112,8 @@
 		google.maps.event.addListener(marker, 'click', function() {
 			infowindow.open(map,marker);
 		});
+		locationMarkerArray.push(marker);
+		return marker;
 	}
 
 	function metersToMiles(meters) {
@@ -120,7 +121,7 @@
 		return mi.toFixed(2);
 	}
 
-	function addVenueToMarkup(data, markup, type) {
+	function addVenueToMarkup(data, markup, type, map, bounds) {
 		var originalDiv = markup;
 		data.sort(function(a,b) { return parseFloat(b.venue.rating) - parseFloat(a.venue.rating)} );
 		console.log(data);
@@ -148,6 +149,8 @@
 			}
 			markup.append(markupStr);
 			addPointsToMap(map, venue.location.lat, venue.location.lng, venue, type);
+			var point = new google.maps.LatLng(venue.location.lat, venue.location.lng);
+			bounds.extend(point);
 		}
 	}
 

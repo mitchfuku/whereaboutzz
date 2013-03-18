@@ -148,10 +148,18 @@
 		map.controls[google.maps.ControlPosition.TOP_RIGHT].push(myButton);
 	}
 
-	//TODO IMPLEMENT THIS
+	//TODO add ability to change geocoder callback depending on what page calls it
+	//i.e. nearby.html would update city+state name but also markers on map for places of interest
 	function geocoderCallback(map, results) {
 		console.log(results);
-		//addNameOfLocation(map, city, state);
+		$.ajax({
+            type: "GET",
+            url: "user-location",
+            success: function(data) {
+            	console.log(data);
+            	addNameOfLocation(map, data.city, data.state_short);
+            }
+        });
 	}
 
 	function positionCallback(map) {
@@ -171,14 +179,14 @@
 		            type: "POST",
 		            url: $(this).attr('action'),
 		            data: $(this).serialize(),
-		            success: function(){
+		            success: function() {
 						marker = new google.maps.Marker({animation:google.maps.Animation.DROP,position:latlon,map:map,title:"You are here!"});
 						map.setCenter(latlon);
 						//Add refresh to city-state-label
 						var geocoder = new google.maps.Geocoder();
 						geocoder.geocode( { 'latLng': latlon }, function(result, status) {
-						     geocoderCallback(map, result);
-						 });
+						    geocoderCallback(map, result);
+						});
 					}
 		        });
 				return false;

@@ -164,7 +164,14 @@ def storeLocation():
         session['lon'] = lon
         return response
     if request.method == 'GET':
-        return "to implement"
+        data = dict(
+                lat = str(escape(session['lat'])),
+                lon = str(escape(session['lon'])),
+                city = str(escape(session['locality'])),
+                state_long = str(escape(session['city_long'])),
+                state_short = str(escape(session['city_short']))
+                )
+        return jsonify(data)
 
 @app.route('/nearby')
 def nearby():
