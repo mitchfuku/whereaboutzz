@@ -17,7 +17,7 @@ def sessionCheck():
         return True
     return False
 
-def getFoursquareVenuesNearby(lat, lon):
+def getFoursquareVenuesNearby(lat, lon, limit):
     # https://api.foursquare.com/v2/venues/search?query=ise%20sushi&ll=40.7143528%2C-74.00597309999999
     latlon = urllib.quote(str(lat) + "," + str(lon))
     opener = urllib2.build_opener()
@@ -29,6 +29,14 @@ def getFoursquareVenuesNearby(lat, lon):
     urlSights = url + "&section=sights&limit=10"
     urlOutdoors = url + "&section=outdoors&limit=10"
     urlArts = url + "&section=arts&limit=10"
+    if limit is not None:
+        urlSights = url + "&section=sights&limit=" + str(limit)
+        urlOutdoors = url + "&section=outdoors&limit=" + str(limit)
+        urlArts = url + "&section=arts&limit=" + str(limit)
+    else:
+        urlSights = url + "&section=sights&limit=10"
+        urlOutdoors = url + "&section=outdoors&limit=10"
+        urlArts = url + "&section=arts&limit=10"
     resource = opener.open(urlFood)
     dataFood = resource.read()
     resource.close()
@@ -185,7 +193,7 @@ def nearby():
         city = str(escape(session['locality']))
         state_long = str(escape(session['city_long']))
         state_short = str(escape(session['city_short']))
-        data = getFoursquareVenuesNearby(lat, lon)
+        data = getFoursquareVenuesNearby(lat, lon, None)
         return render_template('nearby.html',
             data = data,
             lat = lat,

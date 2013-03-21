@@ -151,7 +151,6 @@
 	//TODO add ability to change geocoder callback depending on what page calls it
 	//i.e. nearby.html would update city+state name but also markers on map for places of interest
 	function geocoderCallback(map, results) {
-		console.log(results);
 		$.ajax({
             type: "GET",
             url: "user-location",
@@ -187,6 +186,10 @@
 						geocoder.geocode( { 'latLng': latlon }, function(result, status) {
 						    geocoderCallback(map, result);
 						});
+					},
+					error: function(xhr, ajaxOptions, thrownError) {
+						console.log(xhr);
+						console.log(thrownError);
 					}
 		        });
 				return false;
