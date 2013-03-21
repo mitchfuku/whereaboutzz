@@ -52,7 +52,7 @@ def getFoursquareVenuesNearby(lat, lon, limit):
     dataOutdoors = str(dataOutdoors).decode('utf8')
     dataArts = str(dataArts).decode('utf8')
     print url
-    sys.stdout.flush();
+    sys.stdout.flush()
 
     data = json.dumps(
         dict(
@@ -91,7 +91,7 @@ def getWikipediaDataFromSearchTerm(term):
     # text_file.write(str(content))
     # text_file.close()
     # print imageurl
-    return dict(content=content, imageurl=imageurl, wikiurl=wikiurl)
+    return json.loads(json.dumps(dict(content=content, imageurl=imageurl, wikiurl=wikiurl)))
 
     # import wikipedia, wiki2plain
     # lang = 'en'
@@ -172,26 +172,27 @@ def storeLocation():
         #set the session to expire
         session.permanent = True
         app.permanent_session_lifetime = timedelta(hours=1)
+        #if the page was refreshed, return this data
         if 'refresh' in request.form:
+            print request.form['refresh']
+            sys.stdout.flush()
+            city = str(escape(session['locality']))
+            state_long = str(escape(session['city_long']))
+            queryStr = city + ', ' + state_long
             data = dict(
                 lat = str(escape(session['lat'])),
                 lon = str(escape(session['lon'])),
-                city = str(escape(session['locality'])),
-                state_long = str(escape(session['city_long'])),
+                city = city,
+                state_long = state_long,
                 state_short = str(escape(session['city_short']))
                 )
+            if request.form['refresh'] == "":
+                data['content'] = getWikipediaDataFromSearchTerm(queryStr)
+            if request.form['refresh'] == "nearby":
+                data['data'] = getFoursquareVenuesNearby(lat, lon, None)
             return jsonify(data)
         else:
             return response
-    if request.method == 'GET':
-        data = dict(
-                lat = str(escape(session['lat'])),
-                lon = str(escape(session['lon'])),
-                city = str(escape(session['locality'])),
-                state_long = str(escape(session['city_long'])),
-                state_short = str(escape(session['city_short']))
-                )
-        return jsonify(data)
 
 @app.route('/nearby')
 def nearby():
