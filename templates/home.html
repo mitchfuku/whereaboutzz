@@ -140,7 +140,7 @@
 		            $(that).addClass('ui-state-default');
 		        }, duration);
 				if (navigator.geolocation) {
-					navigator.geolocation.getCurrentPosition(positionCallback(map),showError);
+					navigator.geolocation.getCurrentPosition(positionCallback(),showError);
 				} else {
 					alert("Geolocation is not supported by this browser.");
 				}
@@ -165,7 +165,7 @@
         });
 	}
 
-	function positionCallback(map) {
+	function positionCallback() {
 		var callback = function getPosition(position) {
 			var lat = position.coords.latitude;
 			var lon = position.coords.longitude;
