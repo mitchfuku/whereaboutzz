@@ -2,9 +2,14 @@
 {% block javascript %}
 {{ super() }}
 <script>
+
+</script>
+{% endblock javascript %}
+
 {% block parse %}
-	{{ super() }}
-	var directionDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
+    {{ super() }}
+    
+    directionDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
 	var directionsService = new google.maps.DirectionsService();
 	directionDisplay.setMap(map);
 	var waypoints = [];
@@ -29,15 +34,10 @@
 		}
     });
 {% endblock parse %}
-</script>
-{% endblock javascript %}
 
 {% block foursquareData %}
 	{{ super() }}
-	//data.food.response.groups[0].items = data.food.response.groups[0].items.slice(0, 4);
-	//data.sights.response.groups[0].items = data.sights.response.groups[0].items.slice(0, 4);
-	//data.outdoors.response.groups[0].items = data.outdoors.response.groups[0].items.slice(0, 4);
-	//data.arts.response.groups[0].items = data.arts.response.groups[0].items.slice(0, 4);
+
 	var f = data.food.response.groups[0].items.slice(0, 8);
 	var s = data.sights.response.groups[0].items.slice(0, 8);
 	var o = data.outdoors.response.groups[0].items.slice(0, 8);
@@ -76,5 +76,10 @@
 {% endblock foursquareData %}
 
 {% block refreshHandler %}
-	{{ super() }}
+	function clearOldRoute() {
+		directionDisplay.setMap(null);
+	}
+	clearAllMarkers(locationMarkerArray);
+	clearOldDivs();
+	clearOldRoute();
 {% endblock refreshHandler %}
