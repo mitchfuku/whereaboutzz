@@ -129,6 +129,7 @@
 			if ($(this).hasClass('ui-state-disabled')) {
 				alert("You can't refresh your location that quickly!");
 			} else {
+				//Clear old marker
 				marker.setMap(null);
 				$(this).removeClass('ui-state-hover');
 				$(this).addClass('ui-state-disabled');
@@ -157,6 +158,9 @@
             success: function(data) {
             	console.log(data);
             	addNameOfLocation(map, data.city, data.state_short);
+            	var latlon = new google.maps.LatLng(data.lat, data.lon);
+            	marker = new google.maps.Marker({animation:google.maps.Animation.DROP,position:latlon,map:map,title:"You are here!"});
+				map.setCenter(latlon);
             }
         });
 	}
@@ -178,10 +182,8 @@
 		            type: "POST",
 		            url: $(this).attr('action'),
 		            data: $(this).serialize(),
-		            success: function() {
-						marker = new google.maps.Marker({animation:google.maps.Animation.DROP,position:latlon,map:map,title:"You are here!"});
-						map.setCenter(latlon);
-						//Add refresh to city-state-label
+		            success: function(response) {
+						//Add refresh to city-state-label and marker
 						var geocoder = new google.maps.Geocoder();
 						geocoder.geocode( { 'latLng': latlon }, function(result, status) {
 						    geocoderCallback(map, result);

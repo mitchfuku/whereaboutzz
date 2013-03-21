@@ -26,10 +26,8 @@ def getFoursquareVenuesNearby(lat, lon, limit):
 
     url = "https://api.foursquare.com/v2/venues/explore?v=20130315&venuePhotos=1&client_id=" + foursquare_client_id + "&client_secret=" + foursquare_client_secret + "&intent=browse&ll=" + latlon + "&radius=" + str(radius)
     urlFood = url + "&section=food"
-    urlSights = url + "&section=sights&limit=10"
-    urlOutdoors = url + "&section=outdoors&limit=10"
-    urlArts = url + "&section=arts&limit=10"
     if limit is not None:
+        urlFood = urlFood + "&limit=" + str(limit)
         urlSights = url + "&section=sights&limit=" + str(limit)
         urlOutdoors = url + "&section=outdoors&limit=" + str(limit)
         urlArts = url + "&section=arts&limit=" + str(limit)
