@@ -49,7 +49,7 @@
 {% block javascript %}
 {{ super() }}
 <script>
-	var data = {{data|tojson|safe}};
+	var data;
 	var content = $("#content");
 	var locationMarkerArray = [];
 
@@ -57,7 +57,16 @@
 	$(document).ready(function() {
 		try {
 			if (!nearbyExecuted) {
-				parseData(data);
+				{% block foursquareData %}
+					var data = {{data|tojson|safe}};
+					data.food.response.groups[0].items.sort(function(a,b) { return parseFloat(b.venue.rating) - parseFloat(a.venue.rating)} );
+					data.sights.response.groups[0].items.sort(function(a,b) { return parseFloat(b.venue.rating) - parseFloat(a.venue.rating)} );
+					data.outdoors.response.groups[0].items.sort(function(a,b) { return parseFloat(b.venue.rating) - parseFloat(a.venue.rating)} );
+					data.arts.response.groups[0].items.sort(function(a,b) { return parseFloat(b.venue.rating) - parseFloat(a.venue.rating)} );
+				{% endblock foursquareData %}
+				{% block parse %}
+					parseData(data);
+				{% endblock parse %}
 				nearbyExecuted = true;
 			}
 		} catch(e) {
@@ -69,6 +78,7 @@
 		var sightsMarkup = $("#sights");
 		var outdoorsMarkup = $("#outdoors");
 		var artsMarkup = $("#arts");
+		//console.log(data);
 		var food = data.food.response.groups[0].items;
 		var sights = data.sights.response.groups[0].items;
 		var outdoors = data.outdoors.response.groups[0].items;
@@ -123,9 +133,11 @@
 
 	function addVenueToMarkup(data, markup, type, map, bounds) {
 		var originalDiv = markup;
-		data.sort(function(a,b) { return parseFloat(b.venue.rating) - parseFloat(a.venue.rating)} );
-		console.log(data);
-		for (var i = 0; i < 8; i++) {
+		//data.sort(function(a,b) { return parseFloat(b.venue.rating) - parseFloat(a.venue.rating)} );
+		//console.log(data);
+		var len = data.length;
+		if (len > 8) len = 8;
+		for (var i = 0; i < len; i++) {
 			var venue = data[i].venue;
 			var appendNewContainer = false;
 			//If 4 venues already added
@@ -156,7 +168,6 @@
 
 	function clearAllMarkers(arr) {
 		for (var i = 0; i < arr.length; i++) {
-			console.log(arr[i]);
 			arr[i].setMap(null);
 		}
 		arr = [];
@@ -165,12 +176,11 @@
 	function clearOldDivs() {
 		$(".venues").remove();
 	}
-
-	{% block refreshHandler %}
-		clearAllMarkers(locationMarkerArray);
-		clearOldDivs();
-		parseData(data.data);
-	{% endblock refreshHandler %}
-
 </script>
 {% endblock javascript %}
+
+{% block refreshHandler %}
+	clearAllMarkers(locationMarkerArray);
+	clearOldDivs();
+	parseData(data.data);
+{% endblock refreshHandler %}

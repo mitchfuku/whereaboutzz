@@ -218,8 +218,20 @@ def nearby():
 @app.route('/walking-tour')
 def walkingTour():
     if sessionCheck():
+        lat = float(escape(session['lat']))
+        lon = float(escape(session['lon']))
+        city = str(escape(session['locality']))
+        state_long = str(escape(session['city_long']))
+        state_short = str(escape(session['city_short']))
+        data = getFoursquareVenuesNearby(lat, lon, None)
         return render_template('walking-tour.html',
-    	   walkingActive = 'current_page_item')
+            data = data,
+            lat = lat,
+            lon = lon,
+            city = city,
+            state_long = state_long,
+            state_short = state_short,
+            walkingActive = 'current_page_item')
     else:
         return render_template('get-location.html',
             redirect = 'walking-tour')
