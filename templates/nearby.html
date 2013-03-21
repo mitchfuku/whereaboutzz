@@ -54,6 +54,7 @@
 	var locationMarkerArray = [];
 
 	var nearbyExecuted = false
+
 	$(document).ready(function() {
 		try {
 			if (!nearbyExecuted) {
@@ -176,6 +177,8 @@
 	function clearOldDivs() {
 		$(".venues").remove();
 	}
+	{% block defineFns %}
+	{% endblock defineFns %}
 </script>
 {% endblock javascript %}
 

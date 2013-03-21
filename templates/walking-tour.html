@@ -8,31 +8,33 @@
 
 {% block parse %}
     {{ super() }}
-    
     directionDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
-	var directionsService = new google.maps.DirectionsService();
-	directionDisplay.setMap(map);
-	var waypoints = [];
-	var origin = new google.maps.LatLng({{ lat }}, {{ lon }});
-	var destination = origin;
-	for (var i = 0; i < toSee.length; i++) {
-		waypoints.push({
-			location: new google.maps.LatLng(toSee[i].venue.location.lat, toSee[i].venue.location.lng), 
-			stopover: true
-		});
-	}
-	var request = {
-        origin: origin,
-        destination: destination,
-        waypoints: waypoints,
-        travelMode: google.maps.DirectionsTravelMode.WALKING,
-        optimizeWaypoints: true,
-    };
-    directionsService.route(request, function(response, status) {
-		if (status == google.maps.DirectionsStatus.OK) {
-			directionDisplay.setDirections(response);
+    function buildOptimalRoute() {
+    	var directionsService = new google.maps.DirectionsService();
+		directionDisplay.setMap(map);
+		var waypoints = [];
+		var origin = new google.maps.LatLng({{ lat }}, {{ lon }});
+		var destination = origin;
+		for (var i = 0; i < toSee.length; i++) {
+			waypoints.push({
+				location: new google.maps.LatLng(toSee[i].venue.location.lat, toSee[i].venue.location.lng), 
+				stopover: true
+			});
 		}
-    });
+		var request = {
+	        origin: origin,
+	        destination: destination,
+	        waypoints: waypoints,
+	        travelMode: google.maps.DirectionsTravelMode.WALKING,
+	        optimizeWaypoints: true,
+	    };
+	    directionsService.route(request, function(response, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+				directionDisplay.setDirections(response);
+			}
+	    });
+	}
+	buildOptimalRoute();
 {% endblock parse %}
 
 {% block foursquareData %}
@@ -82,4 +84,62 @@
 	clearAllMarkers(locationMarkerArray);
 	clearOldDivs();
 	clearOldRoute();
+	function checkLocations(arr) {
+		var countPushed = 0;
+		for (var i = 0; i < arr.length; i++) {
+			if (!alreadyGoingThere(arr[i])) {
+				toSee.push(arr[i]);
+				countPushed ++;
+				if (countPushed == 1) return;
+			}
+		}
+	}
+
+	function alreadyGoingThere(point) {
+		for (var i = 0; i < toSee.length; i++) {
+			if (toSee[i].venue.location.lat == point.venue.location.lat
+				&& toSee[i].venue.location.lng == point.venue.location.lng) return true;
+		}
+		return false;
+	}
+	var data = data.data;
+	var f = data.food.response.groups[0].items.slice(0, 8);
+	var s = data.sights.response.groups[0].items.slice(0, 8);
+	var o = data.outdoors.response.groups[0].items.slice(0, 8);
+	var a = data.arts.response.groups[0].items.slice(0, 8);
+	var toSee = [];
+	var temp = []
+	toSee.push(f[0]);
+	checkLocations(s);
+	checkLocations(o);
+	checkLocations(a);
+	console.log(toSee);
+	data.food.response.groups[0].items = temp.concat(toSee[0]);
+	data.sights.response.groups[0].items = temp.concat(toSee[1]);
+	data.outdoors.response.groups[0].items = temp.concat(toSee[2]);
+	data.arts.response.groups[0].items = temp.concat(toSee[3]);
+	parseData(data);
+	var directionsService = new google.maps.DirectionsService();
+	directionDisplay.setMap(map);
+	var waypoints = [];
+	var origin = new google.maps.LatLng({{ lat }}, {{ lon }});
+	var destination = origin;
+	for (var i = 0; i < toSee.length; i++) {
+		waypoints.push({
+			location: new google.maps.LatLng(toSee[i].venue.location.lat, toSee[i].venue.location.lng), 
+			stopover: true
+		});
+	}
+	var request = {
+        origin: origin,
+        destination: destination,
+        waypoints: waypoints,
+        travelMode: google.maps.DirectionsTravelMode.WALKING,
+        optimizeWaypoints: true,
+    };
+    directionsService.route(request, function(response, status) {
+		if (status == google.maps.DirectionsStatus.OK) {
+			directionDisplay.setDirections(response);
+		}
+    });
 {% endblock refreshHandler %}

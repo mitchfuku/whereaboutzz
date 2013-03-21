@@ -188,7 +188,7 @@ def storeLocation():
                 )
             if request.form['refresh'] == "":
                 data['content'] = getWikipediaDataFromSearchTerm(queryStr)
-            if request.form['refresh'] == "nearby":
+            if request.form['refresh'] == "nearby" or request.form['refresh'] == "walking-tour":
                 data['data'] = getFoursquareVenuesNearby(lat, lon, None)
             return jsonify(data)
         else:
