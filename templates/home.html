@@ -185,7 +185,7 @@
 		            success: function(response) {
 						//Add refresh to city-state-label and marker
 						var geocoder = new google.maps.Geocoder();
-						geocoder.geocode( { 'latLng': latlon }, function(result, status) {
+						geocoder.geocode( {}, function(result, status) {
 						    geocoderCallback(map, result);
 						});
 					},
