@@ -172,7 +172,17 @@ def storeLocation():
         #set the session to expire
         session.permanent = True
         app.permanent_session_lifetime = timedelta(hours=1)
-        return response
+        if 'refresh' in request.form:
+            data = dict(
+                lat = str(escape(session['lat'])),
+                lon = str(escape(session['lon'])),
+                city = str(escape(session['locality'])),
+                state_long = str(escape(session['city_long'])),
+                state_short = str(escape(session['city_short']))
+                )
+            return jsonify(data)
+        else:
+            return response
     if request.method == 'GET':
         data = dict(
                 lat = str(escape(session['lat'])),

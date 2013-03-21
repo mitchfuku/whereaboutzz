@@ -149,22 +149,6 @@
 		map.controls[google.maps.ControlPosition.TOP_RIGHT].push(myButton);
 	}
 
-	//TODO add ability to change geocoder callback depending on what page calls it
-	//i.e. nearby.html would update city+state name but also markers on map for places of interest
-	function geocoderCallback(map, results) {
-		$.ajax({
-            type: "GET",
-            url: "user-location",
-            success: function(data) {
-            	console.log(data);
-            	addNameOfLocation(map, data.city, data.state_short);
-            	var latlon = new google.maps.LatLng(data.lat, data.lon);
-            	marker = new google.maps.Marker({animation:google.maps.Animation.DROP,position:latlon,map:map,title:"You are here!"});
-				map.setCenter(latlon);
-            }
-        });
-	}
-
 	function positionCallback() {
 		var callback = function getPosition(position) {
 			var lat = position.coords.latitude;
@@ -174,6 +158,7 @@
 			var form = $('<form action="' + url + '" method="post" style="display:none">' +
 				'<input type="text" name="lat" value="' + lat + '" />' +
 				'<input type="text" name="lon" value="' + lon + '" />' +
+				'<input type="test" name="refresh" value="' + 1 + '" />' +
 				'</form>');
 			$('body').append(form);
 
@@ -182,12 +167,13 @@
 		            type: "POST",
 		            url: $(this).attr('action'),
 		            data: $(this).serialize(),
-		            success: function(response) {
+		            success: function(data) {
+		            	console.log(data);
 						//Add refresh to city-state-label and marker
-						var geocoder = new google.maps.Geocoder();
-						geocoder.geocode( {}, function(result, status) {
-						    geocoderCallback(map, result);
-						});
+						addNameOfLocation(map, data.city, data.state_short);
+		            	var latlon = new google.maps.LatLng(data.lat, data.lon);
+		            	marker = new google.maps.Marker({animation:google.maps.Animation.DROP,position:latlon,map:map,title:"You are here!"});
+						map.setCenter(latlon);
 					},
 					error: function(xhr, ajaxOptions, thrownError) {
 						console.log(xhr);
