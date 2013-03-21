@@ -193,6 +193,9 @@
 								</section> \
 							</div>"
 						);
+						if (isMobile) {
+							$('#content').find('.3u').remove();
+						}
 						{% endblock refreshHandler %}
 					},
 					error: function(xhr, ajaxOptions, thrownError) {
