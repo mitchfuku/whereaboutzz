@@ -89,6 +89,7 @@
 		// } else {
 			map = new google.maps.Map(mapholder,myOptions);
 			marker = new google.maps.Marker({position:latlon,map:map,title:"You are here"});
+			marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
 			addNameOfLocation(map, "{{ city }}", "{{ state_short }}");
 			addRefreshButton(map);
 		// }
@@ -174,6 +175,7 @@
 						addNameOfLocation(map, data.city, data.state_short);
 		            	var latlon = new google.maps.LatLng(data.lat, data.lon);
 		            	marker = new google.maps.Marker({animation:google.maps.Animation.DROP,position:latlon,map:map,title:"You are here!"});
+		            	marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
 						map.setCenter(latlon);
 						{% block refreshHandler %}
 						$(".wikipedia").html(
