@@ -215,6 +215,7 @@ def nearby():
         return render_template('get-location.html',
             redirect = 'nearby')
 
+#https://irs1.4sqi.net/img/general/540x720/4F4QKRXHSTXDYZMHT5ZNESYOMSXNQNTJS4W5YCBR0W3000PQ
 @app.route('/walking-tour')
 def walkingTour():
     if sessionCheck():
