@@ -1,7 +1,8 @@
 Whereaboutzz
 ============
 
-Whereaboutzz code base
+Whereaboutzz code base.
+Visit the site at http://whereaboutzz.herokuapp.com/
 
 ## Running Locally
 
